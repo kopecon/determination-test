@@ -1,0 +1,646 @@
+#:import Factory kivy.factory.Factory
+
+<TitleLabel@Label>
+    color: 0, 0, 0, 1
+    font_name: "D-DINCondensed"
+    font_size: 30
+    halign: "center"
+    valign: "center"
+    text_size: self.size
+
+<TextLabel@Label>
+    color: 0, 0, 0, 1
+    font_name: "Montserrat-SemiBold"
+    font_size: 20
+    halign: "left"
+    valign: "center"
+    text_size: self.size
+<TestFormRadioButton@CheckBox>
+    color: 0,0,0,1
+
+<BackButton@Button>
+    background_normal: ""
+    font_name: "Ardestine"
+    color: 0, 0, 0, 1
+    font_size: 30
+    text: "B"
+    size_hint_x: None
+    width: 30
+
+<Separator@Label>
+    size_hint_y: None
+    height: 5
+    canvas.before:
+        Color:
+            rgba: 0,0,0,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<CustomTextInput@TextInput>
+    background_normal: ""
+    background_color: 0.6,0.6,0.6,0.6
+
+<TabbedPanelStrip>
+    canvas:
+        Color:
+            rgba: (0, 1, 0, 1) # green
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+<UserSelectableLabel>:
+    orientation: "horizontal"
+    label_0: ''
+    label_1: ''
+    label_2: ''
+
+    canvas.before:
+        Color:
+            rgba: (40/255, 93/255, 191/255,0.6) if self.selected else (0.2, 0.2, 0.2, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_0
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_1
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_2
+
+<ScoreSelectableLabel>:
+    orientation: "horizontal"
+    label_0: ''
+    label_3: ''
+    label_4: ''
+
+    canvas.before:
+        Color:
+            rgba: (40/255, 93/255, 191/255,0.6) if self.selected else (0.2, 0.2, 0.2, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_0
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_3
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_4
+
+
+<UsersRV>:
+    viewclass: 'UserSelectableLabel'
+    SelectableRecycleBoxLayout:
+        # padding: 10
+        spacing: 10
+        default_size: None, dp(30)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+
+<UserRecordsRV>:
+    viewclass: 'ScoreSelectableLabel'
+    SelectableRecycleBoxLayout:
+        # padding: 10
+        spacing: 10
+        default_size: None, dp(30)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+<IntroScreen>:
+    canvas.before:
+        Color:
+            rgb: (1, 1, 1, 1)
+        Rectangle:
+            pos:self.pos
+            size:self.size
+
+        Color:
+            rgb: (33/255, 102/255, 177/255, 255/255)
+        Rectangle:
+            pos: self.pos
+            size: (self.size[0], self.size[1]*0.5)
+
+        Color:
+            rgb: (33/255, 102/255, 177/255, 255/255)
+        Triangle:
+            points: [0, (self.size[1]*0.5),self.size[0], (self.size[1]*0.6),self.size[0], (self.size[1]*0.5)]
+
+        Color:
+            rgb: (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: ((self.size[0]*0.05), self.size[1])
+
+        Color:
+            rgb: (1, 1, 1, 1)
+        Rectangle:
+            pos: ((self.size[0]-(self.size[0]*0.05)),(self.pos[1]))
+            size: ((self.size[0]*0.05), self.size[1])
+
+        Color:
+            rgb: (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: ((self.size[0]), (self.size[1]*0.025))
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "CTU"
+            font_size: "60"
+            font_name: "Ardestine"
+            size_hint: (1,0.5)
+            color: 0, 0, 0, 1
+        Image:
+            source: "Style/Icons/CTU_logo_blue_white.jpg"
+
+        Label:
+            text: "DT"
+            font_size: "100"
+            font_name: "Ardestine"
+            size_hint: (1,1.20)
+            color: 0, 0, 0, 1
+        Label:
+            font_name: "D-DINCondensed"
+            font_size: "50"
+            text: "Input Device:"
+            color: 0, 0, 0, 1
+            size_hint_y: None
+            height: 50
+
+        GridLayout:
+            cols: 2
+            padding: [50,20,50,20]
+            spacing: 20
+            Button:
+                id: Keyboard_button_id
+                background_normal: "Style/Icons/Keyboard_custom.png"
+                on_press: root.select_input_device("Keyboard")
+                on_press: root.manager.transition.direction = "left"
+                on_press: root.manager.current = "Main Screen"
+            Button:
+                id: Control_panel_id
+                background_normal: "Style/Icons/Control_panel_custom.png"
+                on_press: root.select_input_device("Control panel")
+                on_press: root.manager.transition.direction = "left"
+                on_press: root.manager.current = "Input Device IP Screen"
+
+<InputDeviceIP>
+    BoxLayout:
+        orientation: "vertical"
+        padding: 50
+        spacing: 20
+        canvas.before:
+            Color:
+                rgba: 253, 253, 152, 1
+            Rectangle:
+                pos:self.pos
+                size:self.size
+
+        Label:
+            size_hint_y: None
+            height: self.size[1]
+        FloatLayout:
+            size_hint_y: None
+            height: 30
+            BackButton:
+                pos_hint: {"x":-0.1,"y":1}
+                on_release: root.manager.transition.direction = "right"
+                on_release: root.manager.current = "Intro Screen"
+            TitleLabel:
+                id: test_score_title_id
+                text: "INPUT DEVICE IP"
+                size_hint_y: None
+                height: 50
+                font_size: 40
+                pos_hint: {"x":0,"y":0.5}
+
+        CustomTextInput:
+            id: input_device_ip_text_input_id
+            multiline: False
+            size_hint_y: None
+            height: 50
+        Button:
+            text: "Submit"
+            size_hint_y: None
+            height: 50
+            on_press: root.submit_ip_address()
+            on_press: root.manager.transition.direction = "left"
+            on_press: root.manager.current = "Main Screen"
+        Label:
+
+<MainScreen>:
+    profile_tab: profile_tab_id
+    test_tab: test_tab_id
+    do_default_tab: False
+
+    TabbedPanelItem:
+        id: profile_tab_id
+        border: [0, 0, 0, 1]
+        text: "USERS"
+        font_name: "Montserrat-SemiBold"
+        color: 0,0,0,1
+        background_down: "Style/Icons/Tab_background_down.png"
+        background_normal: "Style/Icons/Tab_background_normal.png"
+
+        BoxLayout
+            orientation: "vertical"
+            padding: 50
+            spacing: 20
+            canvas.before:
+                Color:
+                    rgba: 253, 253, 152, 1
+                Rectangle:
+                    pos:self.pos
+                    size:self.size
+            FloatLayout:
+                size_hint_y: None
+                height: 30
+                BackButton:
+                    pos_hint: {"x":-0.1,"y":1}
+                    on_release: root.manager.transition.direction = "right"
+                    on_release: root.manager.current = "Intro Screen"
+                TitleLabel:
+                    text: "USER"
+                    size_hint_y: None
+                    height: 50
+                    font_size: 40
+                    pos_hint: {"x":0,"y":0.5}
+                BackButton:
+                    text: "S"
+                    color: 0,1,0,1
+                    pos_hint: {"x":1,"y":1}
+                    on_release: root.start_test()
+            Separator:
+
+            GridLayout:
+                cols: 3
+                rows: 1
+                size_hint_y: None
+                height: self.minimum_height
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'ID'
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'Firstname'
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'Surname'
+
+            Separator:
+                height: 3
+
+            UsersRV:
+                id: user_list_view
+                spacing: 10
+            Separator:
+            Label:
+                size_hint: (1,0.2)
+            GridLayout:
+                cols: 2
+                Button:
+                    background_normal: "Style/Icons/Add_user.png"
+                    size_hint: (0.2, 0.5)
+                    pos_hint: ({"x":0.4})
+                    on_press: root.manager.transition.direction = "left"
+                    on_press: root.manager.current = "User Creator"
+
+                Button:
+                    background_normal: "Style/Icons/Bin.png"
+                    size_hint: (0.2, 0.5)
+                    pos_hint: ({"x":0.4})
+                    on_press: root.delete_user()
+
+            Label:
+                size_hint: (1,0.2)
+
+    TabbedPanelItem:
+        id: test_tab_id
+        text: "TEST"
+        font_name: "Montserrat-SemiBold"
+        color: 0,0,0,1
+        strip_border: True
+        background_down: "Style/Icons/Tab_background_down.png"
+        background_normal: "Style/Icons/Tab_background_normal.png"
+        form_A_button_id : form_A_button_id
+        form_B_button_id : form_B_button_id
+        form_C_button_id : form_C_button_id
+        BoxLayout:
+            orientation: "vertical"
+            padding: 50
+            spacing: 20
+            canvas.before:
+                Color:
+                    rgba: 253, 253, 152, 1
+                Rectangle:
+                    pos:self.pos
+                    size:self.size
+
+            FloatLayout:
+                size_hint_y: None
+                height: 30
+                BackButton:
+                    pos_hint: {"x":-0.1,"y":1}
+                    on_release: root.manager.transition.direction = "right"
+                    on_release: root.switch_to(profile_tab_id)
+                TitleLabel:
+                    text: "TEST FORM"
+                    size_hint_y: None
+                    height: 50
+                    font_size: 40
+                    pos_hint: {"x":0,"y":0.5}
+                BackButton:
+                    text: "S"
+                    color: 0,1,0,1
+                    pos_hint: {"x":1,"y":1}
+                    on_release: root.start_test()
+
+            Separator:
+
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: 30
+                TextLabel:
+                    text: "Include Instructions"
+                    font_size: 15
+                    size_hint_x: None
+                    width: 150
+                TestFormRadioButton:
+                    id: instruction_checkbox
+                    size_hint_x: None
+                    width: 150
+                    state: "down"
+            Separator:
+                height: 3
+            GridLayout:
+                cols: 2
+                spacing: 20
+                TextLabel:
+                    text: "Adaptive"
+                    size_hint_x: None
+                    size_hint_y: None
+                    width: 150
+                    height: 30
+                TestFormRadioButton:
+                    id: form_A_button_id
+                    state: "down"
+                    group: "Test Form"
+                    size_hint_x: None
+                    size_hint_y: None
+                    width: 150
+                    height: 30
+                    allow_no_selection: False
+
+                TextLabel:
+                    text: "Reactive"
+                    size_hint_x: None
+                    size_hint_y: None
+                    width: 150
+                    height: 30
+                TestFormRadioButton:
+                    id: form_B_button_id
+                    group: "Test Form"
+                    size_hint_x: None
+                    size_hint_y: None
+                    width: 150
+                    height: 30
+                    allow_no_selection: False
+
+                TextLabel:
+                    text: "Active"
+                    size_hint_x: None
+                    size_hint_y: None
+                    width: 150
+                    height: 30
+
+                TestFormRadioButton:
+                    id: form_C_button_id
+                    group: "Test Form"
+                    size_hint_x: None
+                    size_hint_y: None
+                    width: 150
+                    height: 30
+                    allow_no_selection: False
+            Separator:
+
+<UserRecords>
+    do_default_tab: False
+    TabbedPanelItem:
+        id: score_tab_id
+        background_down: "Style/Icons/Tab_background_down.png"
+        background_normal: "Style/Icons/Tab_background_normal.png"
+        font_name: "Montserrat-SemiBold"
+        text: "PROFILE"
+        color: 0,0,0,1
+
+        BoxLayout:
+            orientation: "vertical"
+            padding: 50
+            spacing: 20
+            canvas.before:
+                Color:
+                    rgba: 253, 253, 152, 1
+                Rectangle:
+                    pos:self.pos
+                    size:self.size
+
+            FloatLayout:
+                size_hint_y: None
+                height: 30
+                BackButton:
+                    pos_hint: {"x":-0.1,"y":1}
+                    on_release: root.manager.transition.direction = "right"
+                    on_release: root.manager.current = "Main Screen"
+                TitleLabel:
+                    id: test_score_title_id
+                    text: "TEST SCORE"
+                    size_hint_y: None
+                    height: 50
+                    font_size: 40
+                    pos_hint: {"x":0,"y":0.5}
+            Separator:
+            GridLayout:
+                cols: 3
+                rows: 1
+                size_hint_y: None
+                height: self.minimum_height
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'ID'
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'Test Form'
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'Date'
+
+            UserRecordsRV:
+                id: user_records_view
+                spacing: 10
+                # size_hint: (1, None)
+                # height: root.height*0.5
+            Separator:
+
+            Button:
+                background_normal: "Style/Icons/Bin.png"
+                size_hint: (0.2, 0.2)
+                pos_hint: ({"x":0.4})
+                on_press: root.delete_record()
+
+<UserCreator>
+    do_default_tab: False
+
+    TabbedPanelItem:
+        id: user_creator_tab_id
+        text: "CREATE"
+        background_down: "Style/Icons/Tab_background_down.png"
+        background_normal: "Style/Icons/Tab_background_normal.png"
+        font_name: "Montserrat-SemiBold"
+        color: 0,0,0,1
+        BoxLayout
+            orientation: "vertical"
+            padding: 50
+            spacing: 20
+            canvas.before:
+                Color:
+                    rgba: 253, 253, 152, 1
+                Rectangle:
+                    pos:self.pos
+                    size:self.size
+            FloatLayout:
+                size_hint_y: None
+                height: 30
+                BackButton:
+                    pos_hint: {"x":-0.1,"y":1}
+                    on_release: root.manager.transition.direction = "right"
+                    on_release: root.manager.current = "Main Screen"
+                TitleLabel:
+                    text: "CREATE USER"
+                    size_hint_y: None
+                    height: 50
+                    font_size: 40
+                    pos_hint: {"x":0,"y":0.5}
+            Separator:
+
+            BoxLayout:
+                orientation: "vertical"
+                spacing: 20
+                GridLayout:
+                    cols: 2
+                    size_hint: (1, 2.5)
+                    spacing: 20
+
+                    TextLabel:
+                        text: "First Name: "
+                        size_hint:(0.5, 1)
+                    CustomTextInput:
+                        id: firstname_input
+                        multiline: False
+
+                    TextLabel:
+                        text: "Surname: "
+                        size_hint:(0.5, 1)
+
+                    CustomTextInput:
+                        id: surname_input
+                        multiline: False
+
+                    TextLabel:
+                        text: "Age: "
+                        size_hint:(0.5, 1)
+
+                    CustomTextInput:
+                        id: age_input
+                        multiline: False
+
+                    TextLabel:
+                        text: "Profession: "
+                        size_hint:(0.5, 1)
+
+                    CustomTextInput:
+                        id: profession_input
+                        multiline: False # TODO: Multiple professions
+
+                    TextLabel:
+                        text: "Nationality: "
+                        size_hint:(0.5, 1)
+
+                    CustomTextInput:
+                        id: nationality_input
+                        multiline: False
+
+                Separator:
+
+                Button:
+                    color: 0.3, 0.3, 0.3, 1
+                    font_name: "Montserrat-SemiBold"
+                    font_size: 20
+                    text: "Create User"
+                    size_hint: (1, 0.3)
+                    background_normal: ""
+                    on_press: root.create_user()
+                    on_press: root.manager.transition.direction = "right"
+                    on_press: root.manager.current = "Main Screen"
+                Label:
+
+                Separator:
+                    height: 3
+                Button:
+                    color: 0.3, 0.3, 0.3, 1
+                    font_name: "Montserrat-SemiBold"
+                    font_size: 20
+                    id: dummy_score_button_id
+                    text: "Create Dummy User"
+                    size_hint: (1, 0.3)
+                    background_normal: ""
+                    on_press: root.create_dummy_user()
+                    on_press: root.manager.transition.direction = "right"
+                    on_press: root.manager.current = "Main Screen"
+
+                Button:
+                    color: 0.3, 0.3, 0.3, 1
+                    font_name: "Montserrat-SemiBold"
+                    font_size: 20
+                    text: "Create Dummy Score"
+                    size_hint: (1, 0.3)
+                    background_normal: ""
+                    on_press: root.create_dummy_score()
+                    on_press: root.manager.transition.direction = "right"
+                    on_press: root.manager.current = "Main Screen"
