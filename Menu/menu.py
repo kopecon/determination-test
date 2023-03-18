@@ -202,15 +202,11 @@ class MainScreen(TabbedPanel, Screen):
                 result = instruction.run(input_device, input_device_ip)
 
                 if result == "Success":
-                    test_a.TestProgramFormA().test_program_run(
-                        current_user_rowid,
-                        input_device,
-                        input_device_ip)
+                    test_a.run(current_user_rowid, input_device, input_device_ip)
 
             # Start without instructions
             else:
-                test_a.TestProgramFormA().test_program_run(
-                    current_user_rowid, input_device, input_device_ip)
+                test_a.run(current_user_rowid, input_device, input_device_ip)
 
             # Reopen Menu Tab
             reset()
