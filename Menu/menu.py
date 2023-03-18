@@ -199,7 +199,7 @@ class MainScreen(TabbedPanel, Screen):
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.TestInstructions().test_instructions_run(input_device, input_device_ip)
+                result = instruction.run(input_device, input_device_ip)
 
                 if result == "Success":
                     test_a.TestProgramFormA().test_program_run(
@@ -222,7 +222,7 @@ class MainScreen(TabbedPanel, Screen):
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.TestInstructions().test_instructions_run(input_device, input_device_ip)
+                result = instruction.run(input_device, input_device_ip)
 
                 if result == "Success":
                     test_b.TestProgramFormB().test_program_run(
@@ -245,7 +245,7 @@ class MainScreen(TabbedPanel, Screen):
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.TestInstructions().test_instructions_run(input_device, input_device_ip)
+                result = instruction.run(input_device, input_device_ip)
 
                 if result == "Success":
                     test_c.TestProgramFormC().test_program_run(

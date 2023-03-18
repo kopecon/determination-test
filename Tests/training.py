@@ -55,7 +55,7 @@ title = "DETERMINATION TEST - TRAINING"
 
 # ------------------------------------------   Functions
 # Define a Function to call test program in the menu app
-class TestTraining:
+class Training:
     def __init__(self):
         # Predefine buttons
         self.white_button = None
@@ -141,7 +141,7 @@ class TestTraining:
                 self.tone_played = True
 
     # Method that starts the test
-    def test_training_program_run(self, input_device, device_ip):
+    def run(self, input_device, device_ip):
         # Check for selected device
         if input_device == "Control panel":
             # Protect if panel IP address is not found
@@ -542,5 +542,5 @@ class TestTraining:
 
 
 if __name__ == '__main__':
-    training = TestTraining()
-    training.test_training_program_run('keyboard', '16543')
+    training = Training()
+    training.run('keyboard', '16543')
