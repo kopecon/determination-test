@@ -37,17 +37,6 @@ color_types = [GREEN, BLUE, RED, YELLOW, WHITE]
 project_dir = os.path.join(os.getcwd(), os.pardir)
 tests_style_dir = f'{project_dir}/Tests/Style'
 
-# -------------------------------------------------------------------------------------------------------------   Phases
-"""
-Instruction phase:
-    1 ... First Checkpoint
-    A ... Color Stimulus instructions
-    2 ... Second Checkpoint
-    B ... Pedal instructions
-    3 ... Third Checkpoint
-    C ... Tones instructions
-"""
-
 
 # ----------------------------------------------------------------------------------------------------------   Functions
 # Simulate keyboard press with GPIO Button
@@ -158,7 +147,9 @@ def stimulus(main_window, selected_question):
         main_window.blit(down_arrow, down_arrow_rect)
 
 
-def run(input_device=None, device_ip=None):
+def run(input_device=None, device_ip=None, phase="Color stimuli instructions"):
+    phase = phase                                                         # Choose in which phase you start the training
+
     # Instructions title
     title = "DETERMINATION TEST - INSTRUCTIONS"
 
@@ -169,7 +160,6 @@ def run(input_device=None, device_ip=None):
     text_font_size = 55
     font_instr = f'{tests_style_dir}/Fonts/BebasNeue Regular.ttf'
     instr_font_size = 60
-    phase = 1
 
     # Initialize Pygame
     pygame.init()
@@ -321,15 +311,15 @@ def run(input_device=None, device_ip=None):
             # Catch reaction
             if event.type == pygame.KEYDOWN and not event.key == pygame.K_f:
                 # First Checkpoint
-                if phase == 1:
+                if phase == "Color stimuli instructions":
                     stimulus_index = 0
-                    phase = "A"
+                    phase = "Color stimuli testing"
                     main_window.fill(GRAY)
                     pygame.display.flip()
                     time.sleep(0.5)
 
                 # Color Stimulus Instructions
-                elif phase == "A" \
+                elif phase == "Color stimuli testing" \
                         and event.key == instructions_color_stimulus_answer_set[stimulus_index]:
                     if stimulus_index < len(instructions_color_stimulus_question_set) - 1:
                         stimulus_index += 1
@@ -337,21 +327,21 @@ def run(input_device=None, device_ip=None):
                         pygame.display.flip()
                         time.sleep(0.25)
                     else:
-                        phase = 2
+                        phase = "Pedal stimuli instructions"
                         stimulus_index = 0
                         main_window.fill(GRAY)
                         pygame.display.flip()
                         time.sleep(0.25)
 
                 # Second Checkpoint
-                elif phase == 2:
-                    phase = "B"
+                elif phase == "Pedal stimuli instructions":
+                    phase = "Pedal stimuli testing"
                     main_window.fill(GRAY)
                     pygame.display.flip()
                     time.sleep(0.5)
 
                 # Pedals Instructions
-                elif phase == "B" \
+                elif phase == "Pedal stimuli testing" \
                         and event.key == instructions_pedal_answer_set[stimulus_index]:
                     if stimulus_index < len(instructions_pedal_question_set) - 1:
                         stimulus_index += 1
@@ -360,35 +350,35 @@ def run(input_device=None, device_ip=None):
                         time.sleep(0.25)
                     else:
                         stimulus_index = 0
-                        phase = 3
+                        phase = "Sound stimuli instructions"
                         main_window.fill(GRAY)
                         pygame.display.flip()
                         time.sleep(0.25)
 
                 # Third Checkpoint
-                elif phase == 3:
+                elif phase == "Sound stimuli instructions":
                     stimulus_index = 0
-                    phase = "C"
+                    phase = "Sound stimuli testing"
                     main_window.fill(GRAY)
                     pygame.display.flip()
                     time.sleep(0.5)
 
                 # Tone Instructions
-                elif phase == "C":
+                elif phase == "Sound stimuli testing":
                     if event.key == pygame.K_UP:
                         stimulus(main_window, "High Tone")
                     elif event.key == pygame.K_DOWN:
                         stimulus(main_window, "Low Tone")
                     elif event.key == pygame.K_w:
                         stimulus_index = 0
-                        result = training.Training().run(input_device, device_ip)
+                        result = training.run(input_device, device_ip)
                         if result == "Success":
                             return "Success"
                         else:
-                            phase = 1
+                            phase = "Color stimuli instructions"
 
         # First Checkpoint Message
-        if phase == 1:
+        if phase == "Color stimuli instructions":
             main_window.fill(GRAY)
             text_title = title
             title_surface = font_title.render(
@@ -451,7 +441,7 @@ def run(input_device=None, device_ip=None):
             )
 
         # Display Color Stimulus instructions
-        elif phase == "A":
+        elif phase == "Color stimuli testing":
             if stimulus_index <= len(instructions_color_stimulus_question_set):
                 color_stimulus_question_set_index = instructions_color_stimulus_question_set[
                     stimulus_index]
@@ -462,7 +452,7 @@ def run(input_device=None, device_ip=None):
             stimulus(main_window, color_stimulus_question_set_index)
 
         # Second Checkpoint Message
-        elif phase == 2:
+        elif phase == "Pedal stimuli instructions":
 
             main_window.fill(GRAY)
             text_instr = f"PEDALS"
@@ -518,7 +508,7 @@ def run(input_device=None, device_ip=None):
             )
 
         # Display Pedal instructions
-        elif phase == "B":
+        elif phase == "Pedal stimuli testing":
             if stimulus_index <= len(instructions_pedal_question_set):
                 pedal_question_set_index = instructions_pedal_question_set[stimulus_index]
             else:
@@ -528,7 +518,7 @@ def run(input_device=None, device_ip=None):
             pygame.display.flip()
 
         # Third Checkpoint Message
-        elif phase == 3:
+        elif phase == "Sound stimuli instructions":
 
             main_window.fill(GRAY)
             text_instr = f"ACOUSTIC STIMULI"
@@ -573,7 +563,7 @@ def run(input_device=None, device_ip=None):
             )
 
         # Present Tone instructions
-        elif phase == "C":
+        elif phase == "Sound stimuli testing":
 
             main_window.fill(GRAY)
             stimulus(main_window, "Up Arrow")
