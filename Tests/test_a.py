@@ -85,6 +85,12 @@ class User:
                                                                  absolute_time, relative_time, score_id)
             return answer_type
 
+    def update_answer(self, question, answer, answer_type, absolute_time, relative_time, score_id):
+        if self.user_id is not None:
+            answer_type = user_database.update_answer(question, answer, answer_type,
+                                                      absolute_time, relative_time, score_id)
+            return answer_type
+
 
 # ----------------------------------------------------------------------------------------------------------   Functions
 # Simulate keyboard press with GPIO Button
@@ -138,7 +144,7 @@ def stimulus(main_window, question_set_index, circle_position, stimulus_adaptive
                           pedal_width,
                           pedal_height))
 
-    # Tone
+    # Sound
     elif question_set_index == "high_tone":
         high_tone.play(loops=0, maxtime=int(stimulus_adaptive_delay_ms), fade_ms=10)
 
@@ -197,7 +203,7 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
     fullscreen = True
     answer_type = None
     tone_played = False
-    # Measured variables
+    # Measured adaptive variables
     response_time_ns_array = []
     adaptive_response_array = [1078, 1078, 1078, 1078, 1078, 1078, 1078, 1078]
 
@@ -403,7 +409,7 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
 
                         if answer_type == "Missed":
                             # Update missed answer to late answer in answer table
-                            answer_type = user_database.update_answer(
+                            answer_type = current_user.update_answer(
                                 question_set.question_set[stimulus_index - 1],
                                 pygame.key.name(event.key),
                                 "Late",
@@ -534,7 +540,7 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
             if not answered:
                 main_window.fill(GRAY)
                 question_set_index = question_set.question_set[stimulus_index]
-                if not tone_played:
+                if not tone_played:  # Prevent looping of the sound
                     stimulus(main_window, question_set_index, circle_position, stimulus_adaptive_delay_ms)
                 if question_set_index == "high_tone" or question_set_index == "low_tone":
                     tone_played = True
