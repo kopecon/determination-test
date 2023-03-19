@@ -173,6 +173,14 @@ def run(input_device=None, device_ip=None, phase="Color stimuli instructions"):
     main_window = pygame.display.set_mode((window_width, window_height), pygame.FULLSCREEN)
     pygame.display.set_caption("Instructions")
 
+    # Text properties
+    font_title = pygame.freetype.Font(font_title, 70)
+    title_pos = (100, window_height / 6 - title_font_size * 1.5)
+    font_text = pygame.freetype.Font(font_text, 70)
+    text_pos = (150, window_height / 3 - text_font_size * 1.5)
+    font_instr = pygame.freetype.Font(font_instr, 70)
+    instr_pos = (150, window_height / 1.05 - instr_font_size * 1.5)
+
     main_window.fill(GRAY)
 
     # Declare buttons (if panel is found, the buttons are remapped as hardware buttons)
@@ -185,6 +193,10 @@ def run(input_device=None, device_ip=None, phase="Color stimuli instructions"):
     down_button = None
     left_pedal = None
     right_pedal = None
+
+    # Declared test variables
+    stimulus_index = 0
+    fullscreen = True
 
     # Define clock
     clock = pygame.time.Clock()
@@ -239,20 +251,6 @@ def run(input_device=None, device_ip=None, phase="Color stimuli instructions"):
             panel_detected = False
     else:
         panel_detected = False
-
-    # Start at stimulus_index 0
-    stimulus_index = 0
-
-    # Start in fullscreen
-    fullscreen = True
-
-    # Text properties
-    font_title = pygame.freetype.Font(font_title, 70)
-    title_pos = (100, window_height / 6 - title_font_size * 1.5)
-    font_text = pygame.freetype.Font(font_text, 70)
-    text_pos = (150, window_height / 3 - text_font_size * 1.5)
-    font_instr = pygame.freetype.Font(font_instr, 70)
-    instr_pos = (150, window_height / 1.05 - instr_font_size * 1.5)
 
     # Main While loop
     while True:

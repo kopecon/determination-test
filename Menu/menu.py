@@ -93,7 +93,7 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
-                DeterminationTestMenu.main_screen.go_to_user_records()
+                Menu.main_screen.go_to_user_records()
             return self.parent.select_with_touch(self.index, touch)
 
     # Connect selected label to its database reference and get its user's id
@@ -130,7 +130,7 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
-                DeterminationTestMenu.user_records_screen.get_report()
+                Menu.user_records_screen.get_report()
             return self.parent.select_with_touch(self.index, touch)
 
     # Connect selected label to its database reference and get its user's id
@@ -210,7 +210,7 @@ class MainScreen(TabbedPanel, Screen):
 
             # Reopen Menu Tab
             reset()
-            DeterminationTestMenu().run()
+            Menu().run()
 
         # Start Test Form B
         elif self.ids.form_B_button_id.state == "down" and user_is_selected:
@@ -221,19 +221,15 @@ class MainScreen(TabbedPanel, Screen):
                 result = instruction.run(input_device, input_device_ip)
 
                 if result == "Success":
-                    test_b.TestProgramFormB().test_program_run(
-                        current_user_rowid,
-                        input_device,
-                        input_device_ip)
+                    test_b.run(current_user_rowid, input_device, input_device_ip)
 
             # Start without instructions
             else:
-                test_b.TestProgramFormB().test_program_run(
-                    current_user_rowid, input_device, input_device_ip)
+                test_b.run(current_user_rowid, input_device, input_device_ip)
 
             # Reopen Menu Tab
             reset()
-            DeterminationTestMenu().run()
+            Menu().run()
 
         # Start Test Form C
         elif self.ids.form_C_button_id.state == "down" and user_is_selected:
@@ -244,18 +240,14 @@ class MainScreen(TabbedPanel, Screen):
                 result = instruction.run(input_device, input_device_ip)
 
                 if result == "Success":
-                    test_c.TestProgramFormC().test_program_run(
-                        current_user_rowid,
-                        input_device,
-                        input_device_ip)
+                    test_c.run(current_user_rowid, input_device, input_device_ip)
 
             # Start without instructions
             else:
-                test_c.TestProgramFormC().test_program_run(
-                    current_user_rowid, input_device, input_device_ip)
+                test_c.run(current_user_rowid, input_device, input_device_ip)
             # Reopen Menu Tab
             reset()
-            DeterminationTestMenu().run()
+            Menu().run()
 
         # Remind user selection
         elif self.ids.form_A_button_id.state == "down" and not user_is_selected \
@@ -306,7 +298,7 @@ class UserRecordsRV(RecycleView):
 class UserRecords(TabbedPanel, Screen):
     @staticmethod
     def link_to_start_test():
-        DeterminationTestMenu.main_screen.start_test()
+        Menu.main_screen.start_test()
 
     # Update list of users on entering the screen "List of Users"
     def on_enter(self, *args):
@@ -487,7 +479,7 @@ class UserCreator(TabbedPanel, Screen):
 
 
 # ----------------------      Define the main application class      ---------------------------------------------------
-class DeterminationTestMenu(App):
+class Menu(App):
     user_records_screen = UserRecords(name="User Records")
     main_screen = MainScreen(name="Main Screen")
     user_creator_screen = UserCreator(name="User Creator")
@@ -509,4 +501,4 @@ class DeterminationTestMenu(App):
 # ----------------------      Run Menu Application      ----------------------------------------------------------------
 
 if __name__ == '__main__':
-    DeterminationTestMenu().run()
+    Menu().run()

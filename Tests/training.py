@@ -134,6 +134,14 @@ def run(input_device=None, device_ip=None, phase="Instructions"):
     main_window = pygame.display.set_mode((window_width, window_height), pygame.FULLSCREEN)
     pygame.display.set_caption("Training")
 
+    # Text properties
+    font_title = pygame.freetype.Font(font_title, 70)
+    title_pos = (100, window_height / 6 - title_font_size * 1.5)
+    font_text = pygame.freetype.Font(font_text, 70)
+    text_pos = (150, window_height / 3 - text_font_size * 1.5)
+    font_instr = pygame.freetype.Font(font_instr, 70)
+    instr_pos = (150, window_height / 1.05 - instr_font_size * 1.5)
+
     main_window.fill(GRAY)
 
     # Declare buttons (if panel is found, the buttons are remapped as hardware buttons)
@@ -156,7 +164,8 @@ def run(input_device=None, device_ip=None, phase="Instructions"):
     late_answer = 0
     missed_answer = 0
     tone_played = False
-
+    stimulus_index = 0
+    fullscreen = True  # Open test in fullscreen mode - fullscreen = True
     # Start circle at random position
     circle_position = [random.randint(0 + circle_size * 3, main_window.get_width() - circle_size * 3),
                        random.randint(0 + circle_size * 3, main_window.get_height() - circle_size * 3)]
@@ -189,20 +198,6 @@ def run(input_device=None, device_ip=None, phase="Instructions"):
             return panel_detected
     else:
         panel_detected = False
-
-    # Start with first stimulus from the list
-    stimulus_index = 0
-
-    # Start in fullscreen
-    fullscreen = True
-
-    # Text properties
-    font_title = pygame.freetype.Font(font_title, 70)
-    title_pos = (100, window_height / 6 - title_font_size * 1.5)
-    font_text = pygame.freetype.Font(font_text, 70)
-    text_pos = (150, window_height / 3 - text_font_size * 1.5)
-    font_instr = pygame.freetype.Font(font_instr, 70)
-    instr_pos = (150, window_height / 1.05 - instr_font_size * 1.5)
 
     # Main while loop
     while True:
