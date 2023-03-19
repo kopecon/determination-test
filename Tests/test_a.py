@@ -177,6 +177,14 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
     main_window = pygame.display.set_mode((window_width, window_height), pygame.FULLSCREEN)
     pygame.display.set_caption("DT Test Form A")
 
+    # Text properties
+    font_title = pygame.freetype.Font(font_title, 70)
+    title_pos = (100, window_height / 6 - title_font_size * 1.5)
+    font_text = pygame.freetype.Font(font_text, 70)
+    text_pos = (150, window_height / 3 - text_font_size * 1.5)
+    font_instr = pygame.freetype.Font(font_instr, 70)
+    instr_pos = (150, window_height / 1.05 - instr_font_size * 1.5)
+
     main_window.fill(GRAY)
 
     # Declare buttons (if panel is found, the buttons are remapped as hardware buttons)
@@ -200,9 +208,13 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
     answered = False
     flip = True
     stimulus_index = 0
-    fullscreen = True
+    fullscreen = True  # Open test in fullscreen mode - fullscreen = True
     answer_type = None
     tone_played = False
+    # Start circle at random position
+    circle_position = [random.randint(0 + circle_size * 3, main_window.get_width() - circle_size * 3),
+                       random.randint(0 + circle_size * 3, main_window.get_height() - circle_size * 3)]
+
     # Measured adaptive variables
     response_time_ns_array = []
     adaptive_response_array = [1078, 1078, 1078, 1078, 1078, 1078, 1078, 1078]
@@ -234,18 +246,6 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
             panel_detected = False
     else:
         panel_detected = False
-
-    # Text properties
-    font_title = pygame.freetype.Font(font_title, 70)
-    title_pos = (100, window_height / 6 - title_font_size * 1.5)
-    font_text = pygame.freetype.Font(font_text, 70)
-    text_pos = (150, window_height / 3 - text_font_size * 1.5)
-    font_instr = pygame.freetype.Font(font_instr, 70)
-    instr_pos = (150, window_height / 1.05 - instr_font_size * 1.5)
-
-    # Start circle at random position
-    circle_position = [random.randint(0 + circle_size * 3, main_window.get_width() - circle_size * 3),
-                       random.randint(0 + circle_size * 3, main_window.get_height() - circle_size * 3)]
 
     # Main while loop
     while True:

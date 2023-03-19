@@ -154,7 +154,6 @@ def stimulus(main_window, question_set_index, circle_position):
 
 # Method that starts the test
 def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
-    phase = phase
     # Test title
     title = "DETERMINATION TEST - FORM B - REACTIVE"
 
@@ -178,6 +177,14 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
     main_window = pygame.display.set_mode((window_width, window_height), pygame.FULLSCREEN)
     pygame.display.set_caption("DT Test Form B")
 
+    # Text properties
+    font_title = pygame.freetype.Font(font_title, 70)
+    title_pos = (100, window_height / 6 - title_font_size * 1.5)
+    font_text = pygame.freetype.Font(font_text, 70)
+    text_pos = (150, window_height / 3 - text_font_size * 1.5)
+    font_instr = pygame.freetype.Font(font_instr, 70)
+    instr_pos = (150, window_height / 1.05 - instr_font_size * 1.5)
+
     main_window.fill(GRAY)
 
     # Declare buttons (if panel is found, the buttons are remapped as hardware buttons)
@@ -199,9 +206,12 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
     current_script_time_ms = 0
     answered = False
     stimulus_index = 0
-    fullscreen = True
+    fullscreen = True  # Open test in fullscreen mode - fullscreen = True
     answer_type = None
     tone_played = False
+    # Start circle at random position
+    circle_position = [random.randint(0 + circle_size * 3, main_window.get_width() - circle_size * 3),
+                       random.randint(0 + circle_size * 3, main_window.get_height() - circle_size * 3)]
 
     # Define clock
     clock = pygame.time.Clock()
@@ -230,18 +240,6 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
             panel_detected = False
     else:
         panel_detected = False
-
-    # Text properties
-    font_title = pygame.freetype.Font(font_title, 70)
-    title_pos = (100, window_height / 6 - title_font_size * 1.5)
-    font_text = pygame.freetype.Font(font_text, 70)
-    text_pos = (150, window_height / 3 - text_font_size * 1.5)
-    font_instr = pygame.freetype.Font(font_instr, 70)
-    instr_pos = (150, window_height / 1.05 - instr_font_size * 1.5)
-
-    # Start circle at random position
-    circle_position = [random.randint(0 + circle_size * 3, main_window.get_width() - circle_size * 3),
-                       random.randint(0 + circle_size * 3, main_window.get_height() - circle_size * 3)]
 
     # Main while loop
     while True:
@@ -274,7 +272,7 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
             if event.type == pygame.QUIT:
                 # Delete unfinished test score
                 if not phase == "Exit":
-                    user_database.delete_score(current_user.current_score_id)
+                    current_user.delete_score(current_user.current_score_id)
 
                 pygame.quit()
                 return
@@ -284,7 +282,7 @@ def run(user_id=None, input_device=None, device_ip=None, phase="Instructions"):
                 if event.key == pygame.K_ESCAPE:
                     # Delete unfinished test score
                     if not phase == "Exit":
-                        user_database.delete_score(current_user.current_score_id)
+                        current_user.delete_score(current_user.current_score_id)
                     pygame.quit()
                     return
 
