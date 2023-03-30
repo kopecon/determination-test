@@ -26,15 +26,6 @@ from Tests import test_a, test_b, test_c, instruction
 
 
 # ----------------------      Used variables (not adjustable)      -----------------------------------------------------
-test_form = None
-test_selector = None
-user_creator = None
-current_user_rowid = None
-current_score_rowid = None
-user_is_selected = False
-score_is_selected = False
-input_device = None
-input_device_ip = ""
 no_user_popup = Popup(title="Reminder", content=Label(text="No User Selected"), size_hint=(None, None), size=(200, 100))
 
 
@@ -98,17 +89,30 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
     # Connect selected label to its database reference and get its user's id
     def apply_selection(self, rv, index, is_selected):
-        global user_is_selected
-        global current_user_rowid
-
         self.selected = is_selected
+
         if is_selected:
-            user_is_selected = True
-            all_users = user_database.select_all_users()
-            current_user = all_users[index]
-            current_user_rowid = current_user[0]
+            # Fetch the data of the selected user from the user database
+            selected_user = user_database.select_current_user(rv.data[index]['user_id'])
+
+            # Update the :current_user: instance
+            Menu.current_user.is_selected = True
+            Menu.current_user.user_id = selected_user[0]
+            Menu.current_user.first_name = selected_user[2]
+            Menu.current_user.surname = selected_user[3]
+            Menu.current_user.age = selected_user[4]
+            Menu.current_user.profession = selected_user[5]
+            Menu.current_user.nationality = selected_user[6]
+
         if not is_selected:
-            user_is_selected = False
+            # Reset the :Menu.current_user: instance
+            Menu.current_user.is_selected = False
+            Menu.current_user.user_id = None
+            Menu.current_user.first_name = None
+            Menu.current_user.surname = None
+            Menu.current_user.age = None
+            Menu.current_user.profession = None
+            Menu.current_user.nationality = None
 
 
 # Process the selecting of label representing specific score
@@ -135,17 +139,25 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
     # Connect selected label to its database reference and get its user's id
     def apply_selection(self, rv, index, is_selected):
-        global score_is_selected
-        global current_score_rowid
-
         self.selected = is_selected
         if is_selected:
-            score_is_selected = True
-            current_user_every_score = user_database.select_every_score_for_current_user(current_user_rowid)
-            current_score = current_user_every_score[index]
-            current_score_rowid = current_score[0]
+            # Fetch the data of the selected score from the user database
+            selected_score = user_database.select_current_score(rv.data[index]['label_0'])
+
+            # Update the data of :Menu.current_user.current_score: instance
+            Menu.current_user.current_score.is_selected = True
+            Menu.current_user.current_score.score_id = selected_score[0]
+            Menu.current_user.current_score.test_type = selected_score[2]
+            Menu.current_user.current_score.date = selected_score[3]
+            Menu.current_user.current_score.user_id = selected_score[4]
+
         if not is_selected:
-            score_is_selected = False
+            # Reset the data of :Menu.current_user.current_score: instance
+            Menu.current_user.current_score.is_selected = True
+            Menu.current_user.current_score.score_id = None
+            Menu.current_user.current_score.test_type = None
+            Menu.current_user.current_score.date = None
+            Menu.current_user.current_score.user_id = None
 
 
 # Create the Intro screen
@@ -153,15 +165,12 @@ class IntroScreen(Screen):
     # Find selected input device
     @staticmethod
     def select_input_device(input_device_val):
-        global input_device
-
-        input_device = input_device_val
+        Menu.input_device.device_type = input_device_val
 
 
 class InputDeviceIP(Screen):
     def submit_ip_address(self):
-        global input_device_ip
-        input_device_ip = str(self.ids.input_device_ip_text_input_id.text)
+        Menu.input_device.device_ip = str(self.ids.input_device_ip_text_input_id.text)
 
 
 # Create Main Menu Screen
@@ -188,71 +197,71 @@ class MainScreen(TabbedPanel, Screen):
     # Delete selected user
     def delete_user(self):
         user_selectable_label = UserSelectableLabel()
-        user_database.delete_user(current_user_rowid, current_score_rowid)
+        user_database.delete_user(Menu.current_user.user_id, Menu.current_user.current_score.score_id)
         self.ids.user_list_view.refresh_view()
         user_selectable_label.apply_selection(None, None, False)
 
     def start_test(self):
         # Start Test Form A
-        if self.ids.form_A_button_id.state == "down" and user_is_selected:
+        if self.ids.form_A_button_id.state == "down" and Menu.current_user.is_selected:
             App.get_running_app().stop()
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.run(input_device, input_device_ip)
+                result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
 
                 if result == "Success":
-                    test_a.run(current_user_rowid, input_device, input_device_ip)
+                    test_a.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
 
             # Start without instructions
             else:
-                test_a.run(current_user_rowid, input_device, input_device_ip)
+                test_a.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
 
             # Reopen Menu Tab
             reset()
             Menu().run()
 
         # Start Test Form B
-        elif self.ids.form_B_button_id.state == "down" and user_is_selected:
+        elif self.ids.form_B_button_id.state == "down" and Menu.current_user.is_selected:
             App.get_running_app().stop()
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.run(input_device, input_device_ip)
+                result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
 
                 if result == "Success":
-                    test_b.run(current_user_rowid, input_device, input_device_ip)
+                    test_b.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
 
             # Start without instructions
             else:
-                test_b.run(current_user_rowid, input_device, input_device_ip)
+                test_b.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
 
             # Reopen Menu Tab
             reset()
             Menu().run()
 
         # Start Test Form C
-        elif self.ids.form_C_button_id.state == "down" and user_is_selected:
+        elif self.ids.form_C_button_id.state == "down" and Menu.current_user.is_selected:
             App.get_running_app().stop()
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.run(input_device, input_device_ip)
+                result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
 
                 if result == "Success":
-                    test_c.run(current_user_rowid, input_device, input_device_ip)
+                    test_c.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
 
             # Start without instructions
             else:
-                test_c.run(current_user_rowid, input_device, input_device_ip)
+                test_c.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
             # Reopen Menu Tab
             reset()
             Menu().run()
 
         # Remind user selection
-        elif self.ids.form_A_button_id.state == "down" and not user_is_selected \
-                or self.ids.form_B_button_id.state == "down" and not user_is_selected \
-                or self.ids.form_C_button_id.state == "down" and not user_is_selected:
+        elif self.ids.form_A_button_id.state == "down" and not Menu.current_user.is_selected \
+                or self.ids.form_B_button_id.state == "down" and not Menu.current_user.is_selected \
+                or self.ids.form_C_button_id.state == "down" and not Menu.current_user.is_selected:
             no_user_popup.open()
             self.switch_to(self.profile_tab)
 
@@ -271,7 +280,7 @@ class UsersRV(RecycleView):
 
         # Extract data from "DTUserDatabase.db" to create Selectablelabels with users in "List of Users" screen
         self.data = [{
-            'label_0': str(iteration + 1), 'label_1': str(user[2]), 'label_2': str(user[3])
+            'order': str(iteration + 1), 'firstname': str(user[2]), 'surname': str(user[3]), 'user_id': str(user[0])
         } for iteration, user in enumerate(user_records)]
 
 
@@ -285,7 +294,7 @@ class UserRecordsRV(RecycleView):
         user_database.create_score_table()
         user_database.create_answer_table()
         user_database.select_all_users()
-        score_records = user_database.select_every_score_for_current_user(current_user_rowid)
+        score_records = user_database.select_every_score_for_current_user(Menu.current_user.user_id)
 
         # Extract data from "DTUserDatabase.db" to create Selectablelabels with scores in "User Records" screen
         self.data = [{'label_0': str(score[1]),
@@ -309,42 +318,53 @@ class UserRecords(TabbedPanel, Screen):
         # Try fetching data if exists from DT User Database
         try:
             # Get data from User Table
-            user = user_database.select_current_user(current_user_rowid)
+            user = user_database.select_current_user(Menu.current_user.user_id)
 
             # Get data from Score Table
-            selected_score = user_database.select_current_score(current_score_rowid)
+            selected_score = user_database.select_current_score(Menu.current_user.current_score.score_id)
 
             # Get data from Answer Table
             # All answers for current score
             # answers = DT_Database_V2.select_every_answer_for_current_score(current_score_rowid)
             # Total number of specific answers
-            num_of_stimuli = user_database.number_of_stimuli(current_score_rowid)
-            num_of_reactions = user_database.number_of_reactions(current_score_rowid)
-            num_of_correct_answers = user_database.number_of_answers(current_score_rowid, "Correct")
-            num_of_incorrect_answers = user_database.number_of_answers(current_score_rowid, "Incorrect")
-            num_of_late_answers = user_database.number_of_answers(current_score_rowid, "Late")
-            num_of_missed_answers = user_database.number_of_answers(current_score_rowid, "Missed")
-            num_of_repetitive_answers = user_database.number_of_answers(current_score_rowid, "Repeated")
+            num_of_stimuli = user_database.number_of_stimuli(
+                Menu.current_user.current_score.score_id)
+            num_of_reactions = user_database.number_of_reactions(
+                Menu.current_user.current_score.score_id)
+            num_of_correct_answers = user_database.number_of_answers(
+                Menu.current_user.current_score.score_id, "Correct")
+            num_of_incorrect_answers = user_database.number_of_answers(
+                Menu.current_user.current_score.score_id, "Incorrect")
+            num_of_late_answers = user_database.number_of_answers(
+                Menu.current_user.current_score.score_id, "Late")
+            num_of_missed_answers = user_database.number_of_answers(
+                Menu.current_user.current_score.score_id, "Missed")
+            num_of_repetitive_answers = user_database.number_of_answers(
+                Menu.current_user.current_score.score_id, "Repeated")
             # List of specific answers
-            correct_answers = user_database.select_specific_answers(current_score_rowid, "Correct")
+            correct_answers = user_database.select_specific_answers(
+                Menu.current_user.current_score.score_id, "Correct")
             absolute_time_of_correct_answer = []
             respond_time_of_correct_answer = []
             for variable in correct_answers:
                 absolute_time_of_correct_answer.append(variable[4])
                 respond_time_of_correct_answer.append(variable[5])
-            incorrect_answers = user_database.select_specific_answers(current_score_rowid, "Incorrect")
+            incorrect_answers = user_database.select_specific_answers(
+                Menu.current_user.current_score.score_id, "Incorrect")
             absolute_time_of_incorrect_answer = []
             respond_time_of_incorrect_answer = []
             for variable in incorrect_answers:
                 absolute_time_of_incorrect_answer.append(variable[4])
                 respond_time_of_incorrect_answer.append(variable[5])
-            late_answers = user_database.select_specific_answers(current_score_rowid, "Late")
+            late_answers = user_database.select_specific_answers(
+                Menu.current_user.current_score.score_id, "Late")
             absolute_time_of_late_answer = []
             respond_time_of_late_answer = []
             for variable in late_answers:
                 absolute_time_of_late_answer.append(variable[4])
                 respond_time_of_late_answer.append(variable[5])
-            missed_answers = user_database.select_specific_answers(current_score_rowid, "Missed")
+            missed_answers = user_database.select_specific_answers(
+                Menu.current_user.current_score.score_id, "Missed")
             absolute_time_of_missed_answer = []
             respond_time_of_missed_answer = []
             for variable in missed_answers:
@@ -352,7 +372,8 @@ class UserRecords(TabbedPanel, Screen):
                 respond_time_of_missed_answer.append(variable[5])
 
             # Calculate Reaction Time Median:
-            reactions = user_database.select_every_reaction_for_current_score(current_score_rowid)
+            reactions = user_database.select_every_reaction_for_current_score(
+                Menu.current_user.current_score.score_id)
             reaction_times = []
             for variable in reactions:
                 reaction_times.append(variable[6])
@@ -431,7 +452,7 @@ class UserRecords(TabbedPanel, Screen):
 
     def delete_record(self):
         score_selectable_label = ScoreSelectableLabel()
-        user_database.delete_score(current_score_rowid)
+        user_database.delete_score(Menu.current_user.current_score.score_id)
         self.ids.user_records_view.refresh_view()
         score_selectable_label.apply_selection(None, None, False)
 
@@ -460,11 +481,11 @@ class UserCreator(TabbedPanel, Screen):
         self.ids.nationality_input.text = ""
 
     def create_dummy_score(self):
-        if user_is_selected:
+        if Menu.current_user.is_selected:
             user_database.insert_into_score_table(
                 "A",
                 datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                current_user_rowid
+                Menu.current_user.user_id
             )
             self.ids.firstname_input.text = ""
             self.ids.surname_input.text = ""
@@ -473,13 +494,50 @@ class UserCreator(TabbedPanel, Screen):
             self.ids.nationality_input.text = ""
 
         # Remind user selection
-        elif self.ids.dummy_score_button_id == "down" and not user_is_selected:
+        elif self.ids.dummy_score_button_id == "down" and not Menu.current_user.is_selected:
             self.ids.test_selector_screen.no_user_popup.open()
             self.manager.transition.direction = "right"
 
 
+# Class representing the score that is being modified
+class Score:
+    def __init__(self, user_id):
+        self.user_id = user_id
+        self.score_id = None
+        self.test_type = None
+        self.date = None
+        self.is_selected = False
+
+
+# Class representing the user that is being modified
+class User:
+    def __init__(self, user_id: int or None):
+        self.user_id = user_id
+        self.first_name = None
+        self.surname = None
+        self.age = None
+        self.profession = None
+        self.nationality = None
+        self.is_selected = False
+        self.current_score = Score(self.user_id)
+
+
+# Class representing the device that is being used to control the test
+class Device:
+    def __init__(self, device_type="KEYBOARD"):
+        self.device_type = device_type
+        self.device_ip = None
+
+
 # ----------------------      Define the main application class      ---------------------------------------------------
 class Menu(App):
+    # Selected user, who is being modified
+    current_user = User(None)
+
+    # Used device properties
+    input_device = Device()
+
+    # Screen instances
     user_records_screen = UserRecords(name="User Records")
     main_screen = MainScreen(name="Main Screen")
     user_creator_screen = UserCreator(name="User Creator")

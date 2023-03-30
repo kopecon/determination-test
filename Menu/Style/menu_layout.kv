@@ -51,9 +51,10 @@
 
 <UserSelectableLabel>:
     orientation: "horizontal"
-    label_0: ''
-    label_1: ''
-    label_2: ''
+    order: ''
+    firstname: ''
+    surname: ''
+    user_id: ''
 
     canvas.before:
         Color:
@@ -66,20 +67,26 @@
         font_size: 15
         color: 1,1,1,1
         halign: "center"
-        size_hint_x: 0.3
-        text: root.label_0
+        size_hint_x: 0.1
+        text: root.order
     TextLabel:
         font_size: 15
         color: 1,1,1,1
         halign: "center"
-        size_hint_x: 0.3
-        text: root.label_1
+        size_hint_x: 0.4
+        text: root.firstname
     TextLabel:
         font_size: 15
         color: 1,1,1,1
         halign: "center"
-        size_hint_x: 0.3
-        text: root.label_2
+        size_hint_x: 0.4
+        text: root.surname
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.2
+        text: root.user_id
 
 <ScoreSelectableLabel>:
     orientation: "horizontal"
@@ -204,7 +211,7 @@
             Button:
                 id: Keyboard_button_id
                 background_normal: "Style/Icons/Keyboard_custom.png"
-                on_press: root.select_input_device("Keyboard")
+                on_press: root.select_input_device("KEYBOARD")
                 on_press: root.manager.transition.direction = "left"
                 on_press: root.manager.current = "Main Screen"
             Button:
@@ -303,22 +310,27 @@
             Separator:
 
             GridLayout:
-                cols: 3
+                cols: 4
                 rows: 1
                 size_hint_y: None
                 height: self.minimum_height
                 TextLabel:
                     halign: "center"
-                    size_hint_x: 0.3
-                    text: 'ID'
+                    size_hint_x: 0.1
+                    text: ''
+
                 TextLabel:
                     halign: "center"
-                    size_hint_x: 0.3
+                    size_hint_x: 0.4
                     text: 'Firstname'
                 TextLabel:
                     halign: "center"
-                    size_hint_x: 0.3
+                    size_hint_x: 0.4
                     text: 'Surname'
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.2
+                    text: 'ID'
 
             Separator:
                 height: 3
@@ -568,7 +580,7 @@
                     spacing: 20
 
                     TextLabel:
-                        text: "First Name: "
+                        text: "Firstname: "
                         size_hint:(0.5, 1)
                     CustomTextInput:
                         id: firstname_input
