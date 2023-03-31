@@ -464,6 +464,7 @@ class UserCreator(TabbedPanel, Screen):
         profession = self.ids.profession_input.text
         nationality = self.ids.nationality_input.text
         user_database.insert_into_user_table(firstname, surname, age, profession, nationality)
+        # Erase the input fields
         self.ids.firstname_input.text = ""
         self.ids.surname_input.text = ""
         self.ids.age_input.text = ""
@@ -473,6 +474,7 @@ class UserCreator(TabbedPanel, Screen):
     def create_dummy_user(self):
         surname = str(random.randint(0, 20))
         user_database.insert_into_user_table("DUMMY", surname, "0", "None", "Uganda")
+        # Erase the input fields
         self.ids.firstname_input.text = ""
         self.ids.surname_input.text = ""
         self.ids.age_input.text = ""
