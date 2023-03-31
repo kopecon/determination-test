@@ -22,7 +22,8 @@ import statistics
 
 # --------------------------------------------------------------------------------------      Import Custom Program Code
 from Database import user_database
-from Tests import test_a, test_b, test_c, instruction
+from Tests.test_a import TestA
+from Tests import test_b, test_c,  instruction
 
 
 # ---------------------------------------------------------------------------------      Used variables (not adjustable)
@@ -95,24 +96,13 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
             # Fetch the data of the selected user from the user database
             selected_user = user_database.select_current_user(rv.data[index]['user_id'])
 
-            # Update the :current_user: instance
-            Menu.current_user.is_selected = True
-            Menu.current_user.user_id = str(selected_user[0])
-            Menu.current_user.first_name = str(selected_user[2])
-            Menu.current_user.surname = str(selected_user[3])
-            Menu.current_user.age = str(selected_user[4])
-            Menu.current_user.profession = str(selected_user[5])
-            Menu.current_user.nationality = str(selected_user[6])
+            # Update the :Menu.current_user: instance
+            Menu.current_user = User(int(selected_user[0]), str(selected_user[2]), str(selected_user[3]),
+                                     int(selected_user[4]), str(selected_user[5]), str(selected_user[6]), True)
 
         if not is_selected:
             # Reset the :Menu.current_user: instance
-            Menu.current_user.is_selected = False
-            Menu.current_user.user_id = None
-            Menu.current_user.first_name = None
-            Menu.current_user.surname = None
-            Menu.current_user.age = None
-            Menu.current_user.profession = None
-            Menu.current_user.nationality = None
+            Menu.current_user = User(None, None, None, None, None, None, False)
 
 
 # Process the selecting of label representing specific score
@@ -144,20 +134,13 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
             # Fetch the data of the selected score from the user database
             selected_score = user_database.select_current_score(rv.data[index]['label_0'])
 
-            # Update the data of :Menu.current_user.current_score: instance
-            Menu.current_user.current_score.is_selected = True
-            Menu.current_user.current_score.score_id = str(selected_score[0])
-            Menu.current_user.current_score.test_type = str(selected_score[2])
-            Menu.current_user.current_score.date = str(selected_score[3])
-            Menu.current_user.current_score.user_id = str(selected_score[4])
+            # Update the :Menu.current_user.current_score: instance
+            Menu.current_user.current_score = Score(int(selected_score[4]), int(selected_score[0]),
+                                                    str(selected_score[2]), str(selected_score[3]), True)
 
         if not is_selected:
-            # Reset the data of :Menu.current_user.current_score: instance
-            Menu.current_user.current_score.is_selected = True
-            Menu.current_user.current_score.score_id = None
-            Menu.current_user.current_score.test_type = None
-            Menu.current_user.current_score.date = None
-            Menu.current_user.current_score.user_id = None
+            # Reset :Menu.current_user.current_score: instance
+            Menu.current_user.current_score = Score(None, None, None, None, False)
 
 
 # Create the Intro screen
@@ -211,11 +194,13 @@ class MainScreen(TabbedPanel, Screen):
                 result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
 
                 if result == "Success":
-                    test_a.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
+                    TestA().run(
+                        Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
 
             # Start without instructions
             else:
-                test_a.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
+                TestA().run(
+                    Menu.current_user, Menu.input_device.device_type, Menu.input_device.device_ip)
 
             # Reopen Menu Tab
             reset()
@@ -519,25 +504,66 @@ class UserCreator(TabbedPanel, Screen):
 
 # Class representing the score that is being modified
 class Score:
-    def __init__(self, user_id):
+    def __init__(self, user_id, score_id, test_form, date, is_selected):
         self.user_id = user_id
-        self.score_id = None
-        self.test_type = None
-        self.date = None
-        self.is_selected = False
+        self.score_id = score_id
+        self.test_form = test_form
+        self.date = date
+        self.is_selected = is_selected
+
+    def __repr__(self):
+        score_description = f'''
+        User ID: {self.user_id}
+        Score ID: {self.score_id}
+        Test form: {self.test_form}
+        Date: {self.date}
+        Selected: {self.is_selected}
+        '''
+        return score_description
 
 
 # Class representing the user that is being modified
 class User:
-    def __init__(self, user_id: int or None):
+    def __init__(self, user_id=None, first_name=None, surname=None, age=None, profession=None, nationality=None,
+                 is_selected=False):
+
         self.user_id = user_id
-        self.first_name = None
-        self.surname = None
-        self.age = None
-        self.profession = None
-        self.nationality = None
-        self.is_selected = False
-        self.current_score = Score(self.user_id)
+        self.first_name = first_name
+        self.surname = surname
+        self.user_name = f"{self.first_name} {self.surname}"
+        self.age = age
+        self.profession = profession
+        self.nationality = nationality
+        self.current_score = Score(None, None, None, None, False)
+        self.is_selected = is_selected
+
+    def __repr__(self):
+        user_description = f'''
+        Username: {self.user_name}
+        User ID: {self.user_id}
+        '''
+        return user_description
+
+    # Function that initialises recording of the answers for the upcoming test
+    def record_answers(self):
+        if self.user_id is not None:  # Record answers only for users tracked in User Table
+            # Connect to existing score table or create one
+            user_database.create_score_table()
+
+            # Connect to existing score table or create one
+            user_database.create_answer_table()
+
+            # Make Score Table entry for the current test and return the ID of the current score
+            self.current_score.score_id = user_database.insert_into_score_table(
+                "A",
+                datetime.now().strftime("%d/%m/%Y %H:%M"),
+                self.user_id)
+
+            # Clean Score Table of any unwanted answers before recording
+            user_database.delete_answer(self.current_score.score_id)
+            return True  # Able to record answers for the current user
+        else:
+            return False  # Unable to record answers for the current user
 
 
 # Class representing the device that is being used to control the test
