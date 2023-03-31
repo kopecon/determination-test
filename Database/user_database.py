@@ -78,24 +78,27 @@ def create_answer_table():
 
 # --------------------------------------------------------------------------------------------------   Insert Functions:
 def insert_into_answer_table(question, answer, answer_type, absolute_time, relative_time, score_id):
-    conn = connect_to_user_db()
-    c = conn.cursor()
+    if isinstance(score_id, int):
+        conn = connect_to_user_db()
+        c = conn.cursor()
 
-    c.execute("""INSERT INTO AnswerTable(
-                Question,
-                Answer,
-                AnswerType, 
-                AbsoluteTime,
-                RelativeTime,
-                ScoreID) VALUES (?, ?, ?, ?, ?, ?)""", (question,
-                                                        answer,
-                                                        answer_type,
-                                                        absolute_time,
-                                                        relative_time,
-                                                        score_id))
-    conn.commit()
-    conn.close()
-    return answer_type
+        c.execute("""INSERT INTO AnswerTable(
+                    Question,
+                    Answer,
+                    AnswerType, 
+                    AbsoluteTime,
+                    RelativeTime,
+                    ScoreID) VALUES (?, ?, ?, ?, ?, ?)""", (question,
+                                                            answer,
+                                                            answer_type,
+                                                            absolute_time,
+                                                            relative_time,
+                                                            score_id))
+        conn.commit()
+        conn.close()
+        return answer_type
+    else:
+        return
 
 
 # Insert values into table
@@ -114,33 +117,40 @@ def insert_into_user_table(firstname, surname, age, profession, nationality):
 
 
 def insert_into_score_table(test_form, date, user_id):
-    conn = connect_to_user_db()
-    c = conn.cursor()
+    if isinstance(user_id, int):
+        conn = connect_to_user_db()
+        c = conn.cursor()
 
-    c.execute("""INSERT INTO ScoreTable (TestForm, Date, UserID) VALUES (?, ?, ?)""", (test_form, date, user_id))
-    conn.commit()
-    conn.close()
-    return c.lastrowid
+        c.execute("""INSERT INTO ScoreTable (TestForm, Date, UserID) VALUES (?, ?, ?)""", (test_form, date, user_id))
+        conn.commit()
+        conn.close()
+        return c.lastrowid
+    else:
+        return
 
 
 def update_answer(question, answer, answer_type, absolute_time, relative_time, answer_id):
-    conn = connect_to_user_db()
-    c = conn.cursor()
+    if isinstance(answer_id, int):
+        conn = connect_to_user_db()
+        c = conn.cursor()
 
-    c.execute("""UPDATE AnswerTable SET question = ?,
-              Answer = ?,
-              AnswerType = ?,
-              AbsoluteTime = ?,
-              RelativeTime = ? WHERE rowid= ? """, (
-        question,
-        answer,
-        answer_type,
-        absolute_time,
-        relative_time,
-        answer_id)
-              )
-    conn.commit()
-    conn.close()
+        c.execute("""UPDATE AnswerTable SET question = ?,
+                  Answer = ?,
+                  AnswerType = ?,
+                  AbsoluteTime = ?,
+                  RelativeTime = ? WHERE rowid= ? """, (
+            question,
+            answer,
+            answer_type,
+            absolute_time,
+            relative_time,
+            answer_id)
+                  )
+        conn.commit()
+        conn.close()
+        return answer_type
+    else:
+        return
 
 
 # --------------------------------------------------------------------------------------------------   Select Functions:
@@ -158,11 +168,11 @@ def select_all_users():
 
 # Select current user from User Table
 
-def select_current_user(user_index):
+def select_current_user(user_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM UserTable WHERE rowid=?", (user_index,))
+    c.execute("SELECT rowid, * FROM UserTable WHERE rowid=?", (user_id,))
     current_user = c.fetchone()
     conn.commit()
     conn.close()
@@ -170,22 +180,22 @@ def select_current_user(user_index):
 
 
 # Select score of current user
-def select_every_score_for_current_user(user_index):
+def select_every_score_for_current_user(user_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM ScoreTable WHERE UserID=?", (user_index,))
+    c.execute("SELECT rowid, * FROM ScoreTable WHERE UserID=?", (user_id,))
     current_user_score = c.fetchall()
     conn.commit()
     conn.close()
     return current_user_score
 
 
-def select_current_score(current_score_rowid):
+def select_current_score(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM ScoreTable WHERE CustomScoreID=?", (current_score_rowid,))
+    c.execute("SELECT rowid, * FROM ScoreTable WHERE CustomScoreID=?", (score_id,))
     selected_score = c.fetchone()
     conn.commit()
     conn.close()
@@ -193,11 +203,11 @@ def select_current_score(current_score_rowid):
 
 
 # Select all answers of current score
-def select_every_answer_for_current_score(current_score_id):
+def select_every_answer_for_current_score(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM AnswerTable WHERE ScoreID=?", (current_score_id,))
+    c.execute("SELECT rowid, * FROM AnswerTable WHERE ScoreID=?", (score_id,))
     current_user_score = c.fetchall()
     conn.commit()
     conn.close()
@@ -205,23 +215,23 @@ def select_every_answer_for_current_score(current_score_id):
 
 
 # Select all reactions of current score
-def select_every_reaction_for_current_score(current_score_id):
+def select_every_reaction_for_current_score(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
     c.execute("""
-    SELECT rowid, * FROM AnswerTable WHERE ScoreID=? AND NOT AnswerType = "Missed" """, (current_score_id,))
+    SELECT rowid, * FROM AnswerTable WHERE ScoreID=? AND NOT AnswerType = "Missed" """, (score_id,))
     current_reactions = c.fetchall()
     conn.commit()
     conn.close()
     return current_reactions
 
 
-def select_specific_answers(current_score_id, answer_type):
+def select_specific_answers(score_id, answer_type):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT * FROM AnswerTable WHERE ScoreID=? AND AnswerType = ?", (current_score_id, answer_type))
+    c.execute("SELECT * FROM AnswerTable WHERE ScoreID=? AND AnswerType = ?", (score_id, answer_type))
     selected_answers = c.fetchall()
     conn.commit()
     conn.close()
@@ -243,44 +253,44 @@ def select_every_score():
 
 # --------------------------------------------------------------------------------------------------   Delete Functions:
 # Delete selected user from User Table
-def delete_user(current_user_rowid, current_score_rowid):
+def delete_user(user_id, score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("DELETE FROM UserTable WHERE rowid=?", (current_user_rowid,))
-    c.execute("DELETE FROM ScoreTable WHERE UserID=?", (current_user_rowid,))
-    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (current_score_rowid,))
+    c.execute("DELETE FROM UserTable WHERE rowid=?", (user_id,))
+    c.execute("DELETE FROM ScoreTable WHERE UserID=?", (user_id,))
+    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (score_id,))
     conn.commit()
     conn.close()
 
 
 # Delete selected user from User Table
-def delete_score(current_score_rowid):
+def delete_score(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("DELETE FROM ScoreTable WHERE rowid=?", (current_score_rowid,))
-    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (current_score_rowid,))
+    c.execute("DELETE FROM ScoreTable WHERE rowid=?", (score_id,))
+    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (score_id,))
     conn.commit()
     conn.close()
 
 
-def delete_answer(current_question_index):
+def delete_answer(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (current_question_index,))
+    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (score_id,))
     conn.commit()
     conn.close()
 
 
 # --------------------------------------------------------------------------------------   Calculate measured variables:
 # Calculate the number of all stimuli
-def number_of_stimuli(current_score_rowid):
+def number_of_stimuli(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("""SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? """, (current_score_rowid,))
+    c.execute("""SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? """, (score_id,))
     num_of_stimuli = c.fetchone()[0]
     conn.commit()
     conn.close()
@@ -288,13 +298,13 @@ def number_of_stimuli(current_score_rowid):
 
 
 # Calculate the number of all reactions
-def number_of_reactions(current_score_rowid):
+def number_of_reactions(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
     c.execute(
         """SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? AND NOT AnswerType = "Missed" """,
-        (current_score_rowid,)
+        (score_id,)
     )
     num_of_stimuli = c.fetchone()[0]
     conn.commit()
@@ -303,13 +313,13 @@ def number_of_reactions(current_score_rowid):
 
 
 # Calculate the number of all chosen answers
-def number_of_answers(current_score_rowid, answer_type):
+def number_of_answers(score_id, answer_type):
     conn = connect_to_user_db()
     c = conn.cursor()
 
     c.execute(
         """SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? AND AnswerType = ? """,
-        (current_score_rowid, answer_type)
+        (score_id, answer_type)
     )
     num_of_answers = c.fetchone()[0]
     conn.commit()
