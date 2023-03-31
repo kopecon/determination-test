@@ -481,9 +481,9 @@ class UserCreator(TabbedPanel, Screen):
 
     def create_dummy_score(self):
         if Menu.current_user.is_selected:
-            user_database.insert_into_score_table(
+            score_id = user_database.insert_into_score_table(
                 "DUMMY SCORE",
-                datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                datetime.now().strftime("%d/%m/%Y %H:%M"),
                 Menu.current_user.user_id
             )
             self.ids.firstname_input.text = Menu.current_user.first_name
@@ -492,13 +492,22 @@ class UserCreator(TabbedPanel, Screen):
             self.ids.profession_input.text = "Bro... Who works these days?"
             self.ids.nationality_input.text = "Zaun"
 
-            score_id = user_database.select_current_score(Menu.current_user.user_id)[0]
+            # Generate one answer per one absolute time
+            used_time = []
+            absolute_time = 0
+            answer_types = ["Correct", "Incorrect", "Missed", "Late", "Repeated"]
 
             # Generate fake answers
-            for i in range(30):
+            for i in range(16):
+                while absolute_time in used_time:  # Make sure to use only that absolute time which has not been used
+                    absolute_time = random.uniform(0.0, 12.0)
+
+                # Insert fake answers to the created score
                 user_database.insert_into_answer_table(
                     f"Who asked? {i}",
-                    f"Yo Mum {i}", f"Rude {i}", random.randint(0, 4), random.random(), score_id)
+                    f"Yo Mum {i}", random.choice(answer_types), absolute_time, random.uniform(0.0, 500), score_id)
+
+                used_time.append(absolute_time)  # Mark this absolute time as used
 
         # Remind user selection
         elif not Menu.current_user.is_selected:
