@@ -97,12 +97,12 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
             # Update the :current_user: instance
             Menu.current_user.is_selected = True
-            Menu.current_user.user_id = selected_user[0]
-            Menu.current_user.first_name = selected_user[2]
-            Menu.current_user.surname = selected_user[3]
-            Menu.current_user.age = selected_user[4]
-            Menu.current_user.profession = selected_user[5]
-            Menu.current_user.nationality = selected_user[6]
+            Menu.current_user.user_id = str(selected_user[0])
+            Menu.current_user.first_name = str(selected_user[2])
+            Menu.current_user.surname = str(selected_user[3])
+            Menu.current_user.age = str(selected_user[4])
+            Menu.current_user.profession = str(selected_user[5])
+            Menu.current_user.nationality = str(selected_user[6])
 
         if not is_selected:
             # Reset the :Menu.current_user: instance
@@ -134,6 +134,7 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
+                answers = user_database.select_every_answer_for_current_score(Menu.current_user.current_score.score_id)
                 Menu.user_records_screen.get_report()
             return self.parent.select_with_touch(self.index, touch)
 
@@ -146,10 +147,10 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
             # Update the data of :Menu.current_user.current_score: instance
             Menu.current_user.current_score.is_selected = True
-            Menu.current_user.current_score.score_id = selected_score[0]
-            Menu.current_user.current_score.test_type = selected_score[2]
-            Menu.current_user.current_score.date = selected_score[3]
-            Menu.current_user.current_score.user_id = selected_score[4]
+            Menu.current_user.current_score.score_id = str(selected_score[0])
+            Menu.current_user.current_score.test_type = str(selected_score[2])
+            Menu.current_user.current_score.date = str(selected_score[3])
+            Menu.current_user.current_score.user_id = str(selected_score[4])
 
         if not is_selected:
             # Reset the data of :Menu.current_user.current_score: instance
@@ -450,7 +451,7 @@ class UserRecords(TabbedPanel, Screen):
         except TypeError and PermissionError:
             pass
 
-    def delete_record(self):
+    def delete_score(self):
         score_selectable_label = ScoreSelectableLabel()
         user_database.delete_score(Menu.current_user.current_score.score_id)
         self.ids.user_records_view.refresh_view()
@@ -473,25 +474,33 @@ class UserCreator(TabbedPanel, Screen):
         self.ids.nationality_input.text = ""
 
     def create_dummy_user(self):
-        user_database.insert_into_user_table("DUMMY", str(random.randint(0, 20)), "0", "None", "Uganda")
-        self.ids.firstname_input.text = ""
-        self.ids.surname_input.text = ""
-        self.ids.age_input.text = ""
-        self.ids.profession_input.text = ""
-        self.ids.nationality_input.text = ""
+        surname = str(random.randint(0, 20))
+        user_database.insert_into_user_table("DUMMY", surname, "0", "None", "Uganda")
+        self.ids.firstname_input.text = "DUMMY"
+        self.ids.surname_input.text = surname
+        self.ids.age_input.text = "12"
+        self.ids.profession_input.text = "None"
+        self.ids.nationality_input.text = "Uganda"
 
     def create_dummy_score(self):
         if Menu.current_user.is_selected:
             user_database.insert_into_score_table(
-                "A",
+                "DUMMY SCORE",
                 datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
                 Menu.current_user.user_id
             )
-            self.ids.firstname_input.text = ""
-            self.ids.surname_input.text = ""
-            self.ids.age_input.text = ""
-            self.ids.profession_input.text = ""
-            self.ids.nationality_input.text = ""
+            self.ids.firstname_input.text = Menu.current_user.first_name
+            self.ids.surname_input.text = Menu.current_user.surname
+            self.ids.age_input.text = Menu.current_user.age
+            self.ids.profession_input.text = "Bro... Who works these days?"
+            self.ids.nationality_input.text = "Zaun"
+
+            score_id = user_database.select_current_score(Menu.current_user.user_id)[0]
+
+            for i in range(30):
+                user_database.insert_into_answer_table(
+                    f"Who asked? {i}",
+                    f"Yo Mum {i}", f"Rude {i}", random.randint(0, 4), 0.25, score_id)
 
         # Remind user selection
         elif self.ids.dummy_score_button_id == "down" and not Menu.current_user.is_selected:
