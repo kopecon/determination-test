@@ -473,11 +473,11 @@ class UserCreator(TabbedPanel, Screen):
     def create_dummy_user(self):
         surname = str(random.randint(0, 20))
         user_database.insert_into_user_table("DUMMY", surname, "0", "None", "Uganda")
-        self.ids.firstname_input.text = "DUMMY"
-        self.ids.surname_input.text = surname
-        self.ids.age_input.text = "12"
-        self.ids.profession_input.text = "None"
-        self.ids.nationality_input.text = "Uganda"
+        self.ids.firstname_input.text = ""
+        self.ids.surname_input.text = ""
+        self.ids.age_input.text = ""
+        self.ids.profession_input.text = ""
+        self.ids.nationality_input.text = ""
 
     def create_dummy_score(self):
         if Menu.current_user.is_selected:
