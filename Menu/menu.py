@@ -20,16 +20,16 @@ import subprocess
 import random
 import statistics
 
-# ----------------------      Import Custom Program Code      ----------------------------------------------------------
+# --------------------------------------------------------------------------------------      Import Custom Program Code
 from Database import user_database
 from Tests import test_a, test_b, test_c, instruction
 
 
-# ----------------------      Used variables (not adjustable)      -----------------------------------------------------
+# ---------------------------------------------------------------------------------      Used variables (not adjustable)
 no_user_popup = Popup(title="Reminder", content=Label(text="No User Selected"), size_hint=(None, None), size=(200, 100))
 
 
-# --------------------------------      Functions      -----------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------------      Functions
 # Create a function that allows reopening window after closing it
 # solution by: https://stackoverflow.com/questions/68697821/can-i-close-kivy-window-and-open-it-again
 def reset():
@@ -44,7 +44,7 @@ def reset():
             Cache._objects[cat] = {}
 
 
-# ----------------------      Load a layout style form .kv file     ----------------------------------------------------
+# -------------------------------------------------------------------------------      Load a layout style form .kv file
 LabelBase.register(name='Ardestine',
                    fn_regular='Style/Fonts/Ardestine.ttf')
 LabelBase.register(name='D-DINCondensed',
@@ -55,7 +55,7 @@ LabelBase.register(name='Montserrat-SemiBold',
 Builder.load_file("Style/menu_layout.kv")
 
 
-# ----------------------            Define Classes      ----------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------      Define Classes
 
 # Setup Classes for Recycle View by Kivy:
 # https://kivy.org/doc/stable/api-kivy.uix.recycleview.html?highlight=recycle%20view#module-kivy.uix.recycleview
@@ -134,7 +134,6 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
-                answers = user_database.select_every_answer_for_current_score(Menu.current_user.current_score.score_id)
                 Menu.user_records_screen.get_report()
             return self.parent.select_with_touch(self.index, touch)
 
@@ -260,9 +259,7 @@ class MainScreen(TabbedPanel, Screen):
             Menu().run()
 
         # Remind user selection
-        elif self.ids.form_A_button_id.state == "down" and not Menu.current_user.is_selected \
-                or self.ids.form_B_button_id.state == "down" and not Menu.current_user.is_selected \
-                or self.ids.form_C_button_id.state == "down" and not Menu.current_user.is_selected:
+        elif not Menu.current_user.is_selected:
             no_user_popup.open()
             self.switch_to(self.profile_tab)
 
@@ -497,14 +494,15 @@ class UserCreator(TabbedPanel, Screen):
 
             score_id = user_database.select_current_score(Menu.current_user.user_id)[0]
 
+            # Generate fake answers
             for i in range(30):
                 user_database.insert_into_answer_table(
                     f"Who asked? {i}",
-                    f"Yo Mum {i}", f"Rude {i}", random.randint(0, 4), 0.25, score_id)
+                    f"Yo Mum {i}", f"Rude {i}", random.randint(0, 4), random.random(), score_id)
 
         # Remind user selection
-        elif self.ids.dummy_score_button_id == "down" and not Menu.current_user.is_selected:
-            self.ids.test_selector_screen.no_user_popup.open()
+        elif not Menu.current_user.is_selected:
+            no_user_popup.open()
             self.manager.transition.direction = "right"
 
 
@@ -538,7 +536,7 @@ class Device:
         self.device_ip = None
 
 
-# ----------------------      Define the main application class      ---------------------------------------------------
+# -------------------------------------------------------------------------------      Define the main application class
 class Menu(App):
     # Selected user, who is being modified
     current_user = User(None)
@@ -565,7 +563,7 @@ class Menu(App):
         return sm
 
 
-# ----------------------      Run Menu Application      ----------------------------------------------------------------
+# --------------------------------------------------------------------------------------------      Run Menu Application
 
 if __name__ == '__main__':
     Menu().run()
