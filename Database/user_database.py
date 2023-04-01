@@ -270,7 +270,7 @@ def delete_score(score_id):
     conn.close()
 
 
-def delete_answer(score_id):
+def delete_answers(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
