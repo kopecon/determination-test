@@ -179,10 +179,13 @@ class MainScreen(TabbedPanel, Screen):
 
     # Delete selected user
     def delete_user(self):
-        user_selectable_label = UserSelectableLabel()
-        user_database.delete_user(Menu.current_user.user_id, Menu.current_user.current_score.score_id)
+        user_id = Menu.current_user.user_id
+        for score in user_database.select_every_score_for_current_user(user_id):
+            score_id = score[0]
+            user_database.delete_answer(score_id)
+            user_database.delete_score(score_id)
+        user_database.delete_user(user_id)
         self.ids.user_list_view.refresh_view()
-        user_selectable_label.apply_selection(None, None, False)
 
     def start_test(self):
         # Start Test Form A
@@ -194,13 +197,11 @@ class MainScreen(TabbedPanel, Screen):
                 result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
 
                 if result == "Success":
-                    TestA().run(
-                        Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
+                    TestA().run()
 
             # Start without instructions
             else:
-                TestA().run(
-                    Menu.current_user, Menu.input_device.device_type, Menu.input_device.device_ip)
+                TestA().run()
 
             # Reopen Menu Tab
             reset()
@@ -442,29 +443,32 @@ class UserRecords(TabbedPanel, Screen):
 
 # Create a User Creation Screen
 class UserCreator(TabbedPanel, Screen):
+    def on_enter(self, *args):
+        # Erase input fields
+        self.ids.first_name_input.text = ""
+        self.ids.surname_input.text = ""
+        self.ids.age_input.text = ""
+        self.ids.profession_input.text = ""
+        self.ids.nationality_input.text = ""
+
     def create_user(self):
-        firstname = self.ids.firstname_input.text
+        firstname = self.ids.first_name_input.text
         surname = self.ids.surname_input.text
         age = self.ids.age_input.text
         profession = self.ids.profession_input.text
         nationality = self.ids.nationality_input.text
         user_database.insert_into_user_table(firstname, surname, age, profession, nationality)
         # Erase the input fields
-        self.ids.firstname_input.text = ""
+        self.ids.first_name_input.text = ""
         self.ids.surname_input.text = ""
         self.ids.age_input.text = ""
         self.ids.profession_input.text = ""
         self.ids.nationality_input.text = ""
 
-    def create_dummy_user(self):
+    @staticmethod
+    def create_dummy_user():
         surname = str(random.randint(0, 20))
         user_database.insert_into_user_table("DUMMY", surname, "0", "None", "Uganda")
-        # Erase the input fields
-        self.ids.firstname_input.text = ""
-        self.ids.surname_input.text = ""
-        self.ids.age_input.text = ""
-        self.ids.profession_input.text = ""
-        self.ids.nationality_input.text = ""
 
     def create_dummy_score(self):
         if Menu.current_user.is_selected:
@@ -473,11 +477,6 @@ class UserCreator(TabbedPanel, Screen):
                 datetime.now().strftime("%d/%m/%Y %H:%M"),
                 Menu.current_user.user_id
             )
-            self.ids.firstname_input.text = Menu.current_user.first_name
-            self.ids.surname_input.text = Menu.current_user.surname
-            self.ids.age_input.text = Menu.current_user.age
-            self.ids.profession_input.text = "Bro... Who works these days?"
-            self.ids.nationality_input.text = "Zaun"
 
             # Generate one answer per one absolute time
             used_time = []
@@ -544,27 +543,6 @@ class User:
         '''
         return user_description
 
-    # Function that initialises recording of the answers for the upcoming test
-    def record_answers(self):
-        if self.user_id is not None:  # Record answers only for users tracked in User Table
-            # Connect to existing score table or create one
-            user_database.create_score_table()
-
-            # Connect to existing score table or create one
-            user_database.create_answer_table()
-
-            # Make Score Table entry for the current test and return the ID of the current score
-            self.current_score.score_id = user_database.insert_into_score_table(
-                "A",
-                datetime.now().strftime("%d/%m/%Y %H:%M"),
-                self.user_id)
-
-            # Clean Score Table of any unwanted answers before recording
-            user_database.delete_answer(self.current_score.score_id)
-            return True  # Able to record answers for the current user
-        else:
-            return False  # Unable to record answers for the current user
-
 
 # Class representing the device that is being used to control the test
 class Device:
@@ -577,7 +555,6 @@ class Device:
 class Menu(App):
     # Selected user, who is being modified
     current_user = User(None)
-
     # Used device properties
     input_device = Device()
 
