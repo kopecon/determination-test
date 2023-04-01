@@ -280,7 +280,7 @@ class TestB(TestEnvironment):
                     self.main_window.fill(self.GRAY)
                     question_set_index = question_set.question_set[stimulus_index]
                     if not tone_played:  # Prevent looping of the sound
-                        self.stimulus(question_set_index, circle_position, stimulus_delay_time)
+                        self.stimulus(question_set_index, circle_position)
                     if question_set_index == "high_tone" or question_set_index == "low_tone":
                         tone_played = True
                     else:

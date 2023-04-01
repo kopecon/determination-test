@@ -23,7 +23,10 @@ import statistics
 # --------------------------------------------------------------------------------------      Import Custom Program Code
 from Database import user_database
 from Tests.test_a import TestA
-from Tests import test_b, test_c,  instruction
+from Tests.test_b import TestB
+from Tests.test_c import TestC
+
+from Tests import instruction
 
 
 # ---------------------------------------------------------------------------------      Used variables (not adjustable)
@@ -218,11 +221,11 @@ class MainScreen(TabbedPanel, Screen):
                 result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
 
                 if result == "Success":
-                    test_b.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
+                    TestB().run()
 
             # Start without instructions
             else:
-                test_b.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
+                TestB().run()
 
             # Reopen Menu Tab
             reset()
@@ -237,11 +240,11 @@ class MainScreen(TabbedPanel, Screen):
                 result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
 
                 if result == "Success":
-                    test_c.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
+                    TestC().run()
 
             # Start without instructions
             else:
-                test_c.run(Menu.current_user.user_id, Menu.input_device.device_type, Menu.input_device.device_ip)
+                TestC().run()
             # Reopen Menu Tab
             reset()
             Menu().run()
