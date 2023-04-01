@@ -166,8 +166,31 @@ def select_all_users():
     return users
 
 
-# Select current user from User Table
+# Select all from the User Table
+def select_every_score():
+    conn = connect_to_user_db()
+    c = conn.cursor()
 
+    c.execute("SELECT rowid, * FROM ScoreTable")
+    scores = c.fetchall()
+    conn.commit()
+    conn.close()
+    return scores
+
+
+# Select all from the User Table
+def select_every_answer():
+    conn = connect_to_user_db()
+    c = conn.cursor()
+
+    c.execute("SELECT rowid, * FROM AnswerTable")
+    answers = c.fetchall()
+    conn.commit()
+    conn.close()
+    return answers
+
+
+# Select current user from User Table
 def select_current_user(user_id):
     conn = connect_to_user_db()
     c = conn.cursor()
@@ -236,19 +259,6 @@ def select_specific_answers(score_id, answer_type):
     conn.commit()
     conn.close()
     return selected_answers
-
-
-'''
-# Select every score in the database
-def select_every_score():
-
-    connect_to_user_db()
-    c.execute("SELECT rowid, * FROM ScoreTable")
-    scores = c.fetchall()
-    conn.commit()
-    conn.close()
-    return scores
-'''
 
 
 # --------------------------------------------------------------------------------------------------   Delete Functions:
