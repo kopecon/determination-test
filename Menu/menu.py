@@ -63,6 +63,7 @@ Builder.load_file("Style/menu_layout.kv")
 
 # Create a layout with selectable labels
 class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
+    touch_deselect_last = BooleanProperty(True)
     pass
 
 
@@ -75,8 +76,7 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
     # Update data from selected label
     def refresh_view_attrs(self, rv, index, data):
         self.index = index
-        return super(UserSelectableLabel, self).refresh_view_attrs(
-            rv, index, data)
+        return super(UserSelectableLabel, self).refresh_view_attrs(rv, index, data)
 
     # Check for pressing label
     def on_touch_down(self, touch):
@@ -113,8 +113,7 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
     # Update data from selected label
     def refresh_view_attrs(self, rv, index, data):
         self.index = index
-        return super(ScoreSelectableLabel, self).refresh_view_attrs(
-            rv, index, data)
+        return super(ScoreSelectableLabel, self).refresh_view_attrs(rv, index, data)
 
     # Check for pressing label
     def on_touch_down(self, touch):
@@ -178,14 +177,17 @@ class MainScreen(TabbedPanel, Screen):
 
     # Delete selected user
     def delete_user(self):
+        # Get the ID of the selected user, who is going to be deleted
         user_id = Menu.current_user.user_id
+
+        # Delete every score for the current user
         for score in user_database.select_every_score_for_current_user(user_id):
             score_id = score[0]
-            user_database.delete_answers(score_id)
-            user_database.delete_score(score_id)
-        user_database.delete_user(user_id)
-        Menu.current_user.is_selected = False
-        self.ids.user_list_view.refresh_view()
+            user_database.delete_answers(score_id)  # Delete all the answers from the current score
+            user_database.delete_score(score_id)  # Delete the current score
+        user_database.delete_user(user_id)  # Delete the user
+        Menu.current_user.is_selected = False  # No user is selected
+        self.ids.user_list_view.refresh_view()  # Refresh the list of users
 
     def start_test(self):
         # Start Test Form A
