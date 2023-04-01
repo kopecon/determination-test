@@ -149,7 +149,7 @@ class TestEnvironment(ABC):
         return panel_detected, buttons
 
     # Define stimulus which is being presented during the test
-    def stimulus(self, question_set_index, circle_position, stimulus_adaptive_delay_ms):
+    def stimulus(self, question_set_index, circle_position, sound_duration):
 
         # Color Circles
         if question_set_index == "red":
@@ -185,10 +185,10 @@ class TestEnvironment(ABC):
 
         # Sound
         elif question_set_index == "high_tone":
-            self.high_tone.play(loops=0, maxtime=int(stimulus_adaptive_delay_ms), fade_ms=10)
+            self.high_tone.play(loops=0, maxtime=int(sound_duration), fade_ms=10)
 
         elif question_set_index == "low_tone":
-            self.low_tone.play(loops=0, maxtime=int(stimulus_adaptive_delay_ms), fade_ms=10)
+            self.low_tone.play(loops=0, maxtime=int(sound_duration), fade_ms=10)
 
     def random_circle_position(self):
         position = [random.randint(0 + self.circle_size * 3, self.main_window.get_width() - self.circle_size * 3),
