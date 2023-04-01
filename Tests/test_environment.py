@@ -149,7 +149,7 @@ class TestEnvironment(ABC):
         return panel_detected, buttons
 
     # Define stimulus which is being presented during the test
-    def stimulus(self, question_set_index, circle_position, sound_duration):
+    def stimulus(self, question_set_index, circle_position, sound_duration=1500):
 
         # Color Circles
         if question_set_index == "red":
