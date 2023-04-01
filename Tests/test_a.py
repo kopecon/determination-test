@@ -70,7 +70,7 @@ class TestA(TestEnvironment):
                 title_surface = self.text.render(
                     text=text_text,
                     fgcolor=self.LIGHT_GRAY,
-                    size=self.title.size
+                    size=self.text.size
                 )
                 self.main_window.blit(
                     title_surface[0], title_surface[1].move(self.window_width * 0.44, self.text_pos[1] * 1.5))
