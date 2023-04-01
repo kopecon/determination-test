@@ -21,7 +21,7 @@ class TestA(TestEnvironment):
         title = f"DETERMINATION TEST - {test_form.upper()} FORM"
         pygame.display.set_caption(f"DT Test Form: {test_form}")
 
-        # Declare test variables
+        # Declare test specific variables
         epoch_time = 0
         previous_stimulus_time_ms = 0
         reset_respond_time_ms = 0
@@ -33,13 +33,11 @@ class TestA(TestEnvironment):
         fullscreen = True  # Open test in fullscreen mode - fullscreen = True
         answer_type = None
         tone_played = False
+        response_time_ns_array = []
+        adaptive_response_array = [1078, 1078, 1078, 1078, 1078, 1078, 1078, 1078]
 
         # Start circle at random position
         circle_position = self.random_circle_position()
-
-        # Measured adaptive variables
-        response_time_ns_array = []
-        adaptive_response_array = [1078, 1078, 1078, 1078, 1078, 1078, 1078, 1078]
 
         # Get the hardware configuration of the input device
         input_device_config = self.search_for_input_device()  # Hardware parameters
