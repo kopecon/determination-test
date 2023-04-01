@@ -4,7 +4,7 @@ import time
 
 # -----------------------------------------------------------------------------------------  Import Custom Program Code:
 from Tests.test_environment import TestEnvironment
-from Tests import training
+from Tests.training import Training
 
 
 # ----------------------------------------------------------------------------------------------------------  Functions:
@@ -210,7 +210,7 @@ class Instructions(TestEnvironment):
                             self.stimulus("Low Tone", circle_position)
                         elif event.key == pygame.K_w:
                             stimulus_index = 0
-                            result = training.run(self.device.input_device, self.device.device_ip)
+                            result = Training().run()
                             if result == "Success":
                                 return "Success"
                             else:
