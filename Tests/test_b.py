@@ -70,7 +70,7 @@ class User:
                                                                           self.user_id
                                                                           )
             # Clean Score Table for current test of any unwanted answers
-            user_database.delete_answer(self.current_score_id)
+            user_database.delete_answers(self.current_score_id)
         else:
             self.current_score_id = None
 

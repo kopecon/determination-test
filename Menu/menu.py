@@ -91,7 +91,6 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
     # Connect selected label to its database reference and get its user's id
     def apply_selection(self, rv, index, is_selected):
         self.selected = is_selected
-
         if is_selected:
             # Fetch the data of the selected user from the user database
             selected_user = user_database.select_current_user(rv.data[index]['user_id'])
@@ -182,9 +181,10 @@ class MainScreen(TabbedPanel, Screen):
         user_id = Menu.current_user.user_id
         for score in user_database.select_every_score_for_current_user(user_id):
             score_id = score[0]
-            user_database.delete_answer(score_id)
+            user_database.delete_answers(score_id)
             user_database.delete_score(score_id)
         user_database.delete_user(user_id)
+        Menu.current_user.is_selected = False
         self.ids.user_list_view.refresh_view()
 
     def start_test(self):
@@ -435,10 +435,11 @@ class UserRecords(TabbedPanel, Screen):
             pass
 
     def delete_score(self):
-        score_selectable_label = ScoreSelectableLabel()
-        user_database.delete_score(Menu.current_user.current_score.score_id)
+        score_id = Menu.current_user.current_score.score_id
+        user_database.delete_answers(score_id)
+        user_database.delete_score(score_id)
+        Menu.current_user.current_score.is_selected = False
         self.ids.user_records_view.refresh_view()
-        score_selectable_label.apply_selection(None, None, False)
 
 
 # Create a User Creation Screen

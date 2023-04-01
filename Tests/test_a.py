@@ -4,34 +4,22 @@ import random
 import time
 import statistics
 
-# --------------------------------------------------------------------------------------      Import Custom Program Code
+# -----------------------------------------------------------------------------------------  Import Custom Program Code:
 
 from Database import user_database
 from Tests import question_set
 from Tests.test_environment import TestEnvironment
 
 
-# -------------------------------------------------------------------------------------------------------      Functions
+# ----------------------------------------------------------------------------------------------------------  Functions:
 class TestA(TestEnvironment):
     # Method that starts the test
-    def run(self, current_user=None, input_device="KEYBOARD", device_ip=None, phase="Instructions"):
-
-        # Run test in two modes - record answers or not
-        if current_user is not None:  # Record answers only if the user is provided
-            print(current_user)
-            current_user.record_answers()
-            user_name = current_user.user_name
-            score_id = current_user.current_score.score_id
-
-        else:  # No user
-            user_name = None
-            score_id = None
+    def run(self, phase="Instructions"):
+        test_form = "A"
 
         # Test title
-        title = "DETERMINATION TEST - FORM A - ADAPTIVE"
-        pygame.display.set_caption("DT Test Form A")
-
-        self.main_window.fill(self.GRAY)
+        title = f"DETERMINATION TEST - {test_form.upper()} FORM"
+        pygame.display.set_caption(f"DT Test Form: {test_form}")
 
         # Declare test variables
         epoch_time = 0
@@ -47,18 +35,22 @@ class TestA(TestEnvironment):
         tone_played = False
 
         # Start circle at random position
-        circle_position = [
-            random.randint(0 + self.circle_size * 3, self.main_window.get_width() - self.circle_size * 3),
-            random.randint(0 + self.circle_size * 3, self.main_window.get_height() - self.circle_size * 3)]
+        circle_position = self.random_circle_position()
 
         # Measured adaptive variables
         response_time_ns_array = []
         adaptive_response_array = [1078, 1078, 1078, 1078, 1078, 1078, 1078, 1078]
 
         # Get the hardware configuration of the input device
-        input_device_config = self.search_for_input_device(input_device, device_ip)
+        input_device_config = self.search_for_input_device()  # Hardware parameters
         panel_detected = input_device_config[0]  # Was control panel successfully detected?
         buttons = input_device_config[1]  # Hardware configuration of buttons or None if panel was not detected
+
+        # Record answers for current user if the user is in the user database
+        username = self.record_answers(test_form)[0]  # Get username of the user who is being tested
+        score_id = self.record_answers(test_form)[1]  # Get the ID of the score for the current test
+
+        self.main_window.fill(self.GRAY)
 
         # Main while loop
         while True:
@@ -252,7 +244,7 @@ class TestA(TestEnvironment):
                 )
                 self.main_window.blit(title_surface[0], title_surface[1].move(self.title_pos))
 
-                text_text = f"User:       {user_name}"
+                text_text = f"User:       {username}"
                 text_surface = self.text.render(
                     text=text_text,
                     fgcolor=self.LIGHT_GRAY,
@@ -419,7 +411,7 @@ class TestA(TestEnvironment):
                     text_surface[1].move(self.text_pos[0], self.text_pos[1] + self.text.size * 2.5)
                 )
 
-                text_text = f"The results are available at {user_name}'s profile."
+                text_text = f"The results are available at {username}'s profile."
                 text_surface = self.text.render(
                     text=text_text,
                     fgcolor=self.LIGHT_GRAY,
