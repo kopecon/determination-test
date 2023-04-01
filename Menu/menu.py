@@ -25,8 +25,7 @@ from Database import user_database
 from Tests.test_a import TestA
 from Tests.test_b import TestB
 from Tests.test_c import TestC
-
-from Tests import instruction
+from Tests.instructions import Instructions
 
 
 # ---------------------------------------------------------------------------------      Used variables (not adjustable)
@@ -199,7 +198,7 @@ class MainScreen(TabbedPanel, Screen):
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
+                result = Instructions().run()
 
                 if result == "Success":
                     TestA().run()
@@ -218,7 +217,7 @@ class MainScreen(TabbedPanel, Screen):
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
+                result = Instructions().run()
 
                 if result == "Success":
                     TestB().run()
@@ -237,7 +236,7 @@ class MainScreen(TabbedPanel, Screen):
             Window.close()
             # Start with instructions
             if self.ids.instruction_checkbox.state == "down":
-                result = instruction.run(Menu.input_device.device_type, Menu.input_device.device_ip)
+                result = Instructions().run()
 
                 if result == "Success":
                     TestC().run()
