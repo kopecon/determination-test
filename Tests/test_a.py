@@ -1,5 +1,4 @@
 import pygame
-from pygame import VIDEORESIZE
 import random
 import time
 import statistics
@@ -30,7 +29,6 @@ class TestA(TestEnvironment):
         answered = False
         flip = True
         stimulus_index = 0
-        fullscreen = True  # Open test in fullscreen mode - fullscreen = True
         answer_type = None
         tone_played = False
         response_time_ns_array = []
@@ -85,43 +83,9 @@ class TestA(TestEnvironment):
 
             # Event loop
             for event in pygame.event.get():
-
-                # Closing the window by pressing X button on the window screen
-                if event.type == pygame.QUIT:
-                    # Delete unfinished test score
-                    if not phase == "Exit":
-                        user_database.delete_score(score_id)
-
-                    pygame.quit()
+                # Exit test environment if pressed "ESC" key or "close" button
+                if self.exit(phase, event, score_id):
                     return
-
-                # Closing the window by pressing ESC
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        # Delete unfinished test score
-                        if not phase == "Exit":
-                            user_database.delete_score(score_id)
-                        pygame.quit()
-                        return
-
-                # Update screen size when manually resizing window
-                if event.type == VIDEORESIZE:
-                    if not fullscreen:
-                        self.main_window = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-
-                # Enter Fullscreen when pressing "f" on the keyboard
-                if event.type == pygame.KEYDOWN:
-
-                    if event.key == pygame.K_f:
-                        fullscreen = not fullscreen
-                        if fullscreen:
-                            self.main_window = pygame.display.set_mode(self.monitor_size, pygame.FULLSCREEN)
-
-                        else:
-                            self.main_window = pygame.display.set_mode(
-                                (int(self.main_window.get_width() - 500),
-                                 int(self.main_window.get_height()) - 500),
-                                pygame.RESIZABLE)
 
                 # Scan for input (button/key)
                 if event.type == pygame.KEYDOWN and not event.key == pygame.K_f:
@@ -233,6 +197,7 @@ class TestA(TestEnvironment):
 
             # Display START message
             if phase == "Instructions":
+                self.main_window.fill(self.GRAY)
 
                 text_title = title
                 title_surface = self.title.render(
@@ -318,6 +283,8 @@ class TestA(TestEnvironment):
 
             # Start the test
             elif phase == "Test":
+                self.main_window.fill(self.GRAY)
+
                 # Set "time zero" when running the test
                 current_script_time_ms = (time.time_ns() - epoch_time) / 1000000
 
@@ -381,6 +348,7 @@ class TestA(TestEnvironment):
 
             # Display EXIT message
             elif phase == "Exit":
+                self.main_window.fill(self.GRAY)
 
                 text_title = title
                 title_surface = self.title.render(

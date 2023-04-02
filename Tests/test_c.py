@@ -1,5 +1,4 @@
 import pygame
-from pygame import VIDEORESIZE
 import time
 
 # -----------------------------------------------------------------------------------------  Import Custom Program Code:
@@ -24,7 +23,6 @@ class TestC(TestEnvironment):
         reset_respond_time_ms = 0
         stimulus_index = 0
         tone_played = False
-        fullscreen = True  # Open test in fullscreen mode - fullscreen = True
         
         # Start circle at random position
         circle_position = self.random_circle_position()
@@ -48,42 +46,9 @@ class TestC(TestEnvironment):
             # Event loop
             for event in pygame.event.get():
 
-                # Closing the window by pressing X button on the window screen
-                if event.type == pygame.QUIT:
-                    # Delete unfinished test score
-                    if not phase == "Exit":
-                        user_database.delete_score(score_id)
-
-                    pygame.quit()
+                # Exit test environment if pressed "ESC" key or "close" button
+                if self.exit(phase, event, score_id):
                     return
-
-                # Closing the window by pressing ESC
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        # Delete unfinished test score
-                        if not phase == "Exit":
-                            user_database.delete_score(score_id)
-                        pygame.quit()
-                        return
-
-                # Update screen size when manually resizing window
-                if event.type == VIDEORESIZE:
-                    if not fullscreen:
-                        self.main_window = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-
-                # Enter Fullscreen when pressing "f" on the keyboard
-                if event.type == pygame.KEYDOWN:
-
-                    if event.key == pygame.K_f:
-                        fullscreen = not fullscreen
-                        if fullscreen:
-                            self.main_window = pygame.display.set_mode(self.monitor_size, pygame.FULLSCREEN)
-
-                        else:
-                            self.main_window = pygame.display.set_mode(
-                                (int(self.main_window.get_width() - 500),
-                                 int(self.main_window.get_height()) - 500),
-                                pygame.RESIZABLE)
 
                 # Scan for input (button/key)
                 if event.type == pygame.KEYDOWN and not event.key == pygame.K_f:
@@ -189,6 +154,7 @@ class TestC(TestEnvironment):
 
             # Display START message
             if phase == "Instructions":
+                self.main_window.fill(self.GRAY)
 
                 text_title = title
                 title_surface = self.title.render(
@@ -274,8 +240,9 @@ class TestC(TestEnvironment):
 
             # Start the test
             elif phase == "Test":
-                # Display stimulus
                 self.main_window.fill(self.GRAY)
+
+                # Display stimulus
                 question_set_index = question_set.question_set[stimulus_index]
                 if not tone_played:  # Prevent looping of the sound
                     self.stimulus(question_set_index, circle_position)
@@ -287,6 +254,7 @@ class TestC(TestEnvironment):
 
             # Display EXIT message
             elif phase == "Exit":
+                self.main_window.fill(self.GRAY)
 
                 text_title = title
                 title_surface = self.title.render(

@@ -1,5 +1,5 @@
 import pygame
-from pygame import mixer
+from pygame import VIDEORESIZE, mixer
 from abc import ABC, abstractmethod
 from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import Button
@@ -59,6 +59,7 @@ class TestEnvironment(ABC):
         self.monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
         self.window_width = self.monitor_size[0]
         self.window_height = self.monitor_size[1]
+        self.fullscreen = True
 
         # Set up the window
         self.main_window = pygame.display.set_mode((self.window_width, self.window_height), pygame.FULLSCREEN)
@@ -261,6 +262,53 @@ class TestEnvironment(ABC):
                 self.pressing_button(None, pygame.K_RIGHT)
         else:
             pass
+
+    def exit(self, phase, event, score_id):
+        """
+        Method that quits the test environment if "ESC" key or "close" button is pressed.
+        This method also handles fullscreen swapping.
+        :param phase: Keeps trak in which phase we quit to decide if it should store recorded data or not.
+        :param event: Feeds in what buttons/keys are being pressed.
+        :param score_id: Deletes this score if quit outside exit phase.
+        :return: True if the test is being quited.
+        """
+
+        # Closing the window by pressing X button on the window screen
+        if event.type == pygame.QUIT:
+            # Delete unfinished test score
+            if not phase == "Exit" and score_id is not None:
+                user_database.delete_score(score_id)
+
+            pygame.quit()
+            return True
+
+        # Closing the window by pressing ESC
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                # Delete unfinished test score
+                if not phase == "Exit" and score_id is not None:
+                    user_database.delete_score(score_id)
+                pygame.quit()
+                return True
+
+        # Update screen size when manually resizing window
+        if event.type == VIDEORESIZE:
+            if not self.fullscreen:
+                self.main_window = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+
+        # Enter Fullscreen when pressing "f" on the keyboard
+        if event.type == pygame.KEYDOWN:
+
+            if event.key == pygame.K_f:
+                self.fullscreen = not self.fullscreen
+                if self.fullscreen:
+                    self.main_window = pygame.display.set_mode(self.monitor_size, pygame.FULLSCREEN)
+
+                else:
+                    self.main_window = pygame.display.set_mode(
+                        (int(self.main_window.get_width() - 500),
+                         int(self.main_window.get_height()) - 500),
+                        pygame.RESIZABLE)
 
     # Method that starts the test
     @abstractmethod

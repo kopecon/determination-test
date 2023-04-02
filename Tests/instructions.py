@@ -1,5 +1,4 @@
 import pygame
-from pygame import VIDEORESIZE
 import time
 
 # -----------------------------------------------------------------------------------------  Import Custom Program Code:
@@ -93,11 +92,8 @@ class Instructions(TestEnvironment):
         title = f"DETERMINATION TEST - {test_form.upper()}"
         pygame.display.set_caption(f"DT Test Form: {test_form}")
 
-        self.main_window.fill(self.GRAY)
-
         # Declare test specific variables
         stimulus_index = 0
-        fullscreen = True
         instructions_color_stimulus_answer_set = [pygame.K_w, pygame.K_y, pygame.K_b, pygame.K_g, pygame.K_r]
         instructions_pedal_question_set = ["Left Pedal", "Right Pedal", "Left Pedal", "Right Pedal"]
         instructions_pedal_answer_set = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_RIGHT]
@@ -117,35 +113,9 @@ class Instructions(TestEnvironment):
             self.scan_for_pressed_buttons(buttons, panel_detected)
 
             for event in pygame.event.get():
-                # Closing the window by pressing X button on the window screen
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return True
-
-                # Closing the window by pressing ESC
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        pygame.quit()
-                        return True
-
-                # Update screen size when manually resizing window
-                if event.type == VIDEORESIZE:
-                    if not fullscreen:
-                        self.main_window = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-
-                # Enter Fullscreen when pressing "f"
-                if event.type == pygame.KEYDOWN:
-
-                    if event.key == pygame.K_f:
-                        fullscreen = not fullscreen
-                        if fullscreen:
-                            self.main_window = pygame.display.set_mode(self.monitor_size, pygame.FULLSCREEN)
-
-                        else:
-                            self.main_window = pygame.display.set_mode(
-                                (int(self.main_window.get_width() - 500),
-                                 int(self.main_window.get_height()) - 500),
-                                pygame.RESIZABLE)
+                # Exit test environment if pressed "ESC" key or "close" button
+                if self.exit(phase, event, None):
+                    return
 
                 # Catch reaction
                 if event.type == pygame.KEYDOWN and not event.key == pygame.K_f:
@@ -219,6 +189,7 @@ class Instructions(TestEnvironment):
             # First Checkpoint Message
             if phase == "Color stimuli instructions":
                 self.main_window.fill(self.GRAY)
+
                 text_title = title
                 title_surface = self.title.render(
                     text=text_title,
@@ -352,6 +323,7 @@ class Instructions(TestEnvironment):
                     pedal_question_set_index = instructions_pedal_question_set[stimulus_index]
                 else:
                     pedal_question_set_index = 0
+
                 self.main_window.fill(self.GRAY)
                 self.stimulus(pedal_question_set_index, circle_position)
                 pygame.display.flip()
