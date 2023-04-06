@@ -65,7 +65,7 @@ Builder.load_file("Style/menu_layout.kv")
 
 # Create a layout with selectable labels
 class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
-    touch_deselect_last = BooleanProperty(True)
+    touch_deselect_last = BooleanProperty(True)  # FIXME allowing deselection causes issues with double touch.
     pass
 
 
@@ -192,64 +192,42 @@ class MainScreen(TabbedPanel, Screen):
         self.ids.user_list_view.refresh_view()  # Refresh the list of users
 
     def start_test(self):
-        # Start Test Form A
-        if self.ids.form_A_button_id.state == "down" and Menu.current_user.is_selected:
+        # Check if the user is selected
+        if Menu.current_user.is_selected:
             App.get_running_app().stop()
             Window.close()
-            # Start with instructions
+
+            # Start Test Form A
+            if self.ids.form_A_button_id.state == "down":
+                Menu.test = TestA()
+
+            # Start Test Form B
+            elif self.ids.form_B_button_id.state == "down":
+                Menu.test = TestB()
+
+            # Start Test Form C
+            elif self.ids.form_B_button_id.state == "down":
+                Menu.test = TestC()
+
+            # Set user and input device for the upcoming test
+            Menu.test.current_user = Menu.current_user
+            Menu.test.device = Menu.input_device
+
             if self.ids.instruction_checkbox.state == "down":
                 result = Instructions().run()
 
                 if result == "Success":
-                    TestA().run()
+                    Menu.test.run()
 
-            # Start without instructions
             else:
-                TestA().run()
+                Menu.test.run()
 
-            # Reopen Menu Tab
-            reset()
-            Menu().run()
-
-        # Start Test Form B
-        elif self.ids.form_B_button_id.state == "down" and Menu.current_user.is_selected:
-            App.get_running_app().stop()
-            Window.close()
-            # Start with instructions
-            if self.ids.instruction_checkbox.state == "down":
-                result = Instructions().run()
-
-                if result == "Success":
-                    TestB().run()
-
-            # Start without instructions
-            else:
-                TestB().run()
-
-            # Reopen Menu Tab
-            reset()
-            Menu().run()
-
-        # Start Test Form C
-        elif self.ids.form_C_button_id.state == "down" and Menu.current_user.is_selected:
-            App.get_running_app().stop()
-            Window.close()
-            # Start with instructions
-            if self.ids.instruction_checkbox.state == "down":
-                result = Instructions().run()
-
-                if result == "Success":
-                    TestC().run()
-
-            # Start without instructions
-            else:
-                TestC().run()
             # Reopen Menu Tab
             reset()
             Menu().run()
 
         # Remind user selection
-        elif not Menu.current_user.is_selected:
+        else:
             no_user_popup.open()
             self.switch_to(self.profile_tab)
 
@@ -560,8 +538,12 @@ class Device:
 class Menu(App):
     # Selected user, who is being modified
     current_user = User(None)
+
     # Used device properties
     input_device = Device()
+
+    # Selected test form
+    test = None
 
     # Screen instances
     user_records_screen = UserRecords(name="User Records")
