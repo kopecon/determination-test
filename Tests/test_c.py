@@ -39,8 +39,9 @@ class TestC(TestEnvironment):
         buttons = input_device_config[1]  # Hardware configuration of buttons or None if panel was not detected
 
         # Record answers for current user if the user is in the user database
-        username = self.record_answers(test_form)[0]  # Get username of the user who is being tested
-        score_id = self.record_answers(test_form)[1]  # Get the ID of the score for the current test
+        test_details = self.record_answers(test_form)
+        username = test_details[0]  # Get username of the user who is being tested
+        score_id = test_details[1]  # Get the ID of the score for the current test
 
         self.main_window.fill(self.color_scheme['GRAY'])
 
