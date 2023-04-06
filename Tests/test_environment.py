@@ -14,6 +14,18 @@ from Database import user_database
 # ------------------------------------------------------------------------------------------------------------  Classes:
 # Abstract class defining test environments
 class TestEnvironment(ABC):
+    # Display parameters
+    FPS_ceiling = 2000  # Frame rate celling
+    
+    stimulus_parameters = {'circle_size': 100, 'pedal_width': 150, 'pedal_height': 250, 'volume': 0.2}
+    
+    # Switch debounce time [s] - countermeasure to left pedal "Switch Bounce"
+    debounce_time = 0.2  # Empirically measured time... could be around 190 ms
+
+    # Directory to search for dependencies
+    project_dir = os.path.join(os.getcwd(), os.pardir)
+    tests_style_dir = f'{project_dir}/Tests/Style'
+
     def __init__(self, device=None, current_user=None):
         # Current user
         self.current_user = current_user
@@ -21,15 +33,6 @@ class TestEnvironment(ABC):
 
         # Test parameters
         self.test_duration = 240000 / 20  # Test duration in ms (4 min by default)
-        self.volume = 0.2  # Volume of the sound stimulus - Values from 0 to 1 (1 = Max volume) [%]
-
-        # Display parameters
-        self.FPS_ceiling = 2000  # Frame rate celling
-
-        self.stimulus_parameters = {'circle_size': 100, 'pedal_width': 150, 'pedal_height': 250}
-
-        # Switch debounce time [s] - empirically measured time (countermeasure to left pedal "Switch Bounce")
-        self.debounce_time = 0.2  # Could be around 190 ms
 
         # Style color palette
         self.color_scheme = {'GRAY': (41, 43, 45),
@@ -38,10 +41,6 @@ class TestEnvironment(ABC):
                              'WHITE': (253, 253, 253), 'BLUE': (0, 0, 179),
                              'RED': (159, 0, 27), 'YELLOW': (255, 204, 0)}
 
-        # Directory to search for dependencies
-        self.project_dir = os.path.join(os.getcwd(), os.pardir)
-        self.tests_style_dir = f'{self.project_dir}/Tests/Style'
-
         # Initialize Pygame
         pygame.init()
 
@@ -49,19 +48,17 @@ class TestEnvironment(ABC):
         self.clock = pygame.time.Clock()
 
         # Get Monitor Info
-        self.monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
-        self.window_width = self.monitor_size[0]
-        self.window_height = self.monitor_size[1]
-        self.fullscreen = True
+        self.monitor_size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
 
         # Set up the window
-        self.main_window = pygame.display.set_mode((self.window_width, self.window_height), pygame.FULLSCREEN)
+        self.main_window = pygame.display.set_mode(self.monitor_size, pygame.FULLSCREEN)
+        self.fullscreen = True
 
         # Set up sound bank
         self.sound_bank = {'high_tone': mixer.Sound(f'{self.tests_style_dir}/Sounds/High.wav'),
                            'low_tone': mixer.Sound(f'{self.tests_style_dir}/Sounds/Low.wav')}
-        self.sound_bank['high_tone'].set_volume(self.volume)
-        self.sound_bank['low_tone'].set_volume(self.volume)
+        self.sound_bank['high_tone'].set_volume(self.stimulus_parameters['volume'])
+        self.sound_bank['low_tone'].set_volume(self.stimulus_parameters['volume'])
 
         # Text properties [font, font size]
         title = [f'{self.tests_style_dir}/Fonts/Handgotn.ttf', 70]
@@ -70,11 +67,11 @@ class TestEnvironment(ABC):
 
         # Define text style
         self.title = pygame.freetype.Font(title[0], title[1])
-        self.title_pos = (100, self.window_height / 6 - title[1] * 1.5)
+        self.title_pos = (100, self.monitor_size[1] / 6 - title[1] * 1.5)
         self.text = pygame.freetype.Font(text[0], text[1])
-        self.text_pos = (150, self.window_height / 3 - text[1] * 1.5)
+        self.text_pos = (150, self.monitor_size[1] / 3 - text[1] * 1.5)
         self.instr = pygame.freetype.Font(instr[0], instr[1])
-        self.instr_pos = (150, self.window_height / 1.05 - instr[1] * 1.5)
+        self.instr_pos = (150, self.monitor_size[1] / 1.05 - instr[1] * 1.5)
 
     # Function that remaps input from hardware buttons and presents them as a keyboard input
     @staticmethod
