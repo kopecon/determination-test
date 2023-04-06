@@ -58,10 +58,10 @@ class TestEnvironment(ABC):
         self.main_window = pygame.display.set_mode((self.window_width, self.window_height), pygame.FULLSCREEN)
 
         # Set up sound bank
-        self.high_tone = mixer.Sound(f'{self.tests_style_dir}/Sounds/High.wav')
-        self.high_tone.set_volume(self.volume)
-        self.low_tone = mixer.Sound(f'{self.tests_style_dir}/Sounds/Low.wav')
-        self.low_tone.set_volume(self.volume)
+        self.sound_bank = {'high_tone': mixer.Sound(f'{self.tests_style_dir}/Sounds/High.wav'),
+                           'low_tone': mixer.Sound(f'{self.tests_style_dir}/Sounds/Low.wav')}
+        self.sound_bank['high_tone'].set_volume(self.volume)
+        self.sound_bank['low_tone'].set_volume(self.volume)
 
         # Text properties [font, font size]
         title = [f'{self.tests_style_dir}/Fonts/Handgotn.ttf', 70]
@@ -89,17 +89,8 @@ class TestEnvironment(ABC):
 
     def search_for_input_device(self):
         # Buttons have no hardware representation
-        white_button = None
-        yellow_button = None
-        green_button = None
-        blue_button = None
-        red_button = None
-        up_button = None
-        down_button = None
-        left_pedal = None
-        right_pedal = None
-        buttons = [white_button, yellow_button, green_button, blue_button,
-                   red_button, up_button, down_button, left_pedal, right_pedal]
+        buttons = {'white_button': None, 'yellow_button': None, 'green_button': None, 'blue_button': None,
+                   'red_button': None, 'up_button': None, 'down_button': None, 'left_pedal': None, 'right_pedal': None}
 
         # User chose to use control pane to control the test
         if self.device is not None and self.device.input_device == "CONTROL PANEL":
@@ -112,26 +103,21 @@ class TestEnvironment(ABC):
                 panel_detected = True
 
                 # Declare buttons and pedals based on their hardware representation
-                white_button = Button(18, pin_factory=factory, pull_up=False)
-                yellow_button = Button(14, pin_factory=factory, pull_up=False)
-                green_button = Button(15, pin_factory=factory, pull_up=False)
-                blue_button = Button(22, pin_factory=factory, pull_up=False)
-                red_button = Button(27, pin_factory=factory, pull_up=False)
-                up_button = Button(23, pin_factory=factory, pull_up=False)
-                down_button = Button(17, pin_factory=factory, pull_up=False)
-                left_pedal = Button(24, pin_factory=factory, pull_up=False)
-                right_pedal = Button(25, pin_factory=factory, pull_up=False)
-
-                buttons = [white_button, yellow_button, green_button, blue_button,
-                           red_button, up_button, down_button, left_pedal, right_pedal]
+                buttons['white_button'] = Button(18, pin_factory=factory, pull_up=False)
+                buttons['yellow_button'] = Button(14, pin_factory=factory, pull_up=False)
+                buttons['green_button'] = Button(15, pin_factory=factory, pull_up=False)
+                buttons['blue_button'] = Button(22, pin_factory=factory, pull_up=False)
+                buttons['red_button'] = Button(27, pin_factory=factory, pull_up=False)
+                buttons['up_button'] = Button(23, pin_factory=factory, pull_up=False)
+                buttons['down_button'] = Button(17, pin_factory=factory, pull_up=False)
+                buttons['left_pedal'] = Button(24, pin_factory=factory, pull_up=False)
+                buttons['right_pedal'] = Button(25, pin_factory=factory, pull_up=False)
 
                 print("Panel was successfully detected")
-
                 return panel_detected, buttons
 
             # Return to menu if panel is not found
             except OSError:
-
                 panel_detected = False
                 print("Panel not detected")
                 return panel_detected, buttons
@@ -142,39 +128,61 @@ class TestEnvironment(ABC):
 
         return panel_detected, buttons
 
+    def scan_for_pressed_buttons(self, buttons, panel_detected=False):
+        # Scan for buttons only if the control panel is being used to control the test
+        if panel_detected:
+            white_button = buttons['white_button']
+            yellow_button = buttons['yellow_button']
+            green_button = buttons['green_button']
+            blue_button = buttons['blue_button']
+            red_button = buttons['red_button']
+            up_button = buttons['up_button']
+            down_button = buttons['down_button']
+            left_pedal = buttons['left_pedal']
+            right_pedal = buttons['right_pedal']
+
+            # Check for button pressing
+            if white_button.is_pressed:
+                self.pressing_button("w", pygame.K_w)
+            if yellow_button.is_pressed:
+                self.pressing_button("y", pygame.K_y)
+            if green_button.is_pressed:
+                self.pressing_button("g", pygame.K_g)
+            if blue_button.is_pressed:
+                self.pressing_button("b", pygame.K_b)
+            if red_button.is_pressed:
+                self.pressing_button("r", pygame.K_r)
+            if up_button.is_pressed:
+                self.pressing_button(None, pygame.K_UP)
+            if down_button.is_pressed:
+                self.pressing_button(None, pygame.K_DOWN)
+            if left_pedal.is_pressed:
+                self.pressing_button(None, pygame.K_LEFT)
+            if right_pedal.is_pressed:
+                self.pressing_button(None, pygame.K_RIGHT)
+        else:
+            pass
+
     # Define stimulus which is being presented during the test
-    def stimulus(self, question_set_index, circle_position, sound_duration=1500):
+    def stimulus(self, stimulus_type, circle_position, sound_duration=1500):
 
         # Color Circles
-        if question_set_index == "RED":
-            pygame.draw.circle(self.main_window, self.color_scheme['RED'],
-                               circle_position, self.stimulus_parameters['circle_size'])
-
-        elif question_set_index == "BLUE":
-            pygame.draw.circle(self.main_window, self.color_scheme['BLUE'],
-                               circle_position, self.stimulus_parameters['circle_size'])
-
-        elif question_set_index == "GREEN":
-            pygame.draw.circle(self.main_window, self.color_scheme['GREEN'],
-                               circle_position, self.stimulus_parameters['circle_size'])
-
-        elif question_set_index == "YELLOW":
-            pygame.draw.circle(self.main_window, self.color_scheme['YELLOW'],
-                               circle_position, self.stimulus_parameters['circle_size'])
-
-        elif question_set_index == "WHITE":
-            pygame.draw.circle(self.main_window, self.color_scheme['WHITE'],
-                               circle_position, self.stimulus_parameters['circle_size'])
+        if stimulus_type in ['WHITE', 'GREEN', 'RED', 'YELLOW', 'BLUE']:
+            pygame.draw.circle(
+                self.main_window,
+                self.color_scheme[stimulus_type],
+                circle_position,
+                self.stimulus_parameters['circle_size'])
 
         # Pedals
-        elif question_set_index == "left_pedal":
+        elif stimulus_type == "left_pedal":
             pygame.draw.rect(self.main_window,
                              (253, 253, 253),
                              (50, int(self.main_window.get_height() - self.stimulus_parameters['pedal_height'] - 50),
                               self.stimulus_parameters['pedal_width'],
                               self.stimulus_parameters['pedal_height']))
 
-        elif question_set_index == "right_pedal":
+        elif stimulus_type == "right_pedal":
             pygame.draw.rect(self.main_window,
                              (253, 253, 253),
                              (int(self.main_window.get_width() - self.stimulus_parameters['pedal_width'] - 50),
@@ -183,11 +191,8 @@ class TestEnvironment(ABC):
                               self.stimulus_parameters['pedal_height']))
 
         # Sound
-        elif question_set_index == "high_tone":
-            self.high_tone.play(loops=0, maxtime=int(sound_duration), fade_ms=10)
-
-        elif question_set_index == "low_tone":
-            self.low_tone.play(loops=0, maxtime=int(sound_duration), fade_ms=10)
+        elif stimulus_type in ['high_tone', 'low_tone']:
+            self.sound_bank[stimulus_type].play(loops=0, maxtime=int(sound_duration), fade_ms=10)
 
     def random_circle_position(self):
         position = [random.randint(0 + self.stimulus_parameters['circle_size'] * 3,
@@ -227,41 +232,6 @@ class TestEnvironment(ABC):
 
                 return username, score_id  # ID of the score which is going to receive answers from the test
         return username, score_id  # Returns None -> answers are not being recorded
-
-    def scan_for_pressed_buttons(self, buttons, panel_detected=False):
-        # Scan for buttons only if the control panel is being used to control the test
-        if panel_detected:
-            white_button = buttons[0]
-            yellow_button = buttons[1]
-            green_button = buttons[2]
-            blue_button = buttons[3]
-            red_button = buttons[4]
-            up_button = buttons[5]
-            down_button = buttons[6]
-            left_pedal = buttons[7]
-            right_pedal = buttons[8]
-
-            # Check for button pressing
-            if white_button.is_pressed:
-                self.pressing_button("w", pygame.K_w)
-            if yellow_button.is_pressed:
-                self.pressing_button("y", pygame.K_y)
-            if green_button.is_pressed:
-                self.pressing_button("g", pygame.K_g)
-            if blue_button.is_pressed:
-                self.pressing_button("b", pygame.K_b)
-            if red_button.is_pressed:
-                self.pressing_button("r", pygame.K_r)
-            if up_button.is_pressed:
-                self.pressing_button(None, pygame.K_UP)
-            if down_button.is_pressed:
-                self.pressing_button(None, pygame.K_DOWN)
-            if left_pedal.is_pressed:
-                self.pressing_button(None, pygame.K_LEFT)
-            if right_pedal.is_pressed:
-                self.pressing_button(None, pygame.K_RIGHT)
-        else:
-            pass
 
     def exit(self, phase, event, score_id):
         """
