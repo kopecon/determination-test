@@ -14,6 +14,7 @@ from Database import user_database
 # ------------------------------------------------------------------------------------------------------------  Classes:
 # Abstract class defining test environments
 class TestEnvironment(ABC):
+
     # Display parameters
     FPS_ceiling = 2000  # Frame rate celling
     
@@ -25,6 +26,19 @@ class TestEnvironment(ABC):
     # Directory to search for dependencies
     project_dir = os.path.join(os.getcwd(), os.pardir)
     tests_style_dir = f'{project_dir}/Tests/Style'
+
+    # Pygame environment properties
+    clock = None
+    monitor_size = None
+    main_window = None
+    fullscreen = True
+    sound_bank = {}
+    title = None
+    text = None
+    instr = None
+    title_pos = None
+    text_pos = None
+    instr_pos = None
 
     def __init__(self, device=None, current_user=None):
         # Current user
@@ -41,6 +55,12 @@ class TestEnvironment(ABC):
                              'WHITE': (253, 253, 253), 'BLUE': (0, 0, 179),
                              'RED': (159, 0, 27), 'YELLOW': (255, 204, 0)}
 
+    def start_pygame(self):
+        """
+        Initializing pygame with pygame.init() directly from the class builder causes issues
+        with Kivy. Cannot reopen menu window after quiting pygame.
+        This method is called in every "run()" to initialize pygame.
+        """
         # Initialize Pygame
         pygame.init()
 
@@ -50,9 +70,8 @@ class TestEnvironment(ABC):
         # Get Monitor Info
         self.monitor_size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
 
-        # Set up the window
+        # Set up the test window
         self.main_window = pygame.display.set_mode(self.monitor_size, pygame.FULLSCREEN)
-        self.fullscreen = True
 
         # Set up sound bank
         self.sound_bank = {'high_tone': mixer.Sound(f'{self.tests_style_dir}/Sounds/High.wav'),

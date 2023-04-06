@@ -12,6 +12,7 @@ from Tests.test_environment import TestEnvironment
 class TestC(TestEnvironment):
     # Method that starts the test
     def run(self, phase="Instructions"):
+        self.start_pygame()
 
         test_form = "C"
 
