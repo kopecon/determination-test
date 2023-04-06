@@ -88,6 +88,7 @@ class Instructions(TestEnvironment):
             self.main_window.blit(down_arrow, down_arrow_rect)
 
     def run(self, phase="Color stimuli instructions"):
+        self.start_pygame()
 
         test_form = "INSTRUCTIONS"
 

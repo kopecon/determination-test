@@ -14,6 +14,7 @@ class Training(TestEnvironment):
 
     # Method that starts the test
     def run(self, phase="Instructions"):
+        self.start_pygame()
 
         test_form = "Training"
 
