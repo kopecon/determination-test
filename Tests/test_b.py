@@ -10,6 +10,10 @@ from Tests.test_environment import TestEnvironment
 
 # ----------------------------------------------------------------------------------------------------------  Functions:
 class TestB(TestEnvironment):
+    # Printing instance of this class returns the name of this class
+    def __repr__(self):
+        return __class__.__name__
+
     # Method that starts the test
     def run(self, phase="Instructions"):
         self.start_pygame()

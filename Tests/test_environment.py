@@ -55,6 +55,10 @@ class TestEnvironment(ABC):
                              'WHITE': (253, 253, 253), 'BLUE': (0, 0, 179),
                              'RED': (159, 0, 27), 'YELLOW': (255, 204, 0)}
 
+    @abstractmethod
+    def __repr__(self):
+        pass
+
     def start_pygame(self):
         """
         Initializing pygame with pygame.init() directly from the class builder causes issues

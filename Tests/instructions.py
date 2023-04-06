@@ -8,6 +8,10 @@ from Tests.training import Training
 
 # ----------------------------------------------------------------------------------------------------------  Functions:
 class Instructions(TestEnvironment):
+    # Printing instance of this class returns the name of this class
+    def __repr__(self):
+        return __class__.__name__
+
     # Define Stimulus Type
     def stimulus(self, stimulus_type, circle_position, sound_duration=1500):
         up_arrow_scale_factor = (100, 100)
