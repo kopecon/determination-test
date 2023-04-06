@@ -14,6 +14,7 @@ from Tests.test_environment import TestEnvironment
 class TestA(TestEnvironment):
     # Method that starts the test
     def run(self, phase="Instructions"):
+
         test_form = "A"
 
         # Test title
@@ -21,6 +22,7 @@ class TestA(TestEnvironment):
         pygame.display.set_caption(f"DT Test Form: {test_form}")
 
         # Declare test specific variables
+        test_duration = 240000 / 20  # Test duration in ms (4 min by default)
         epoch_time = 0
         previous_stimulus_time_ms = 0
         reset_respond_time_ms = 0
@@ -46,7 +48,7 @@ class TestA(TestEnvironment):
         username = self.record_answers(test_form)[0]  # Get username of the user who is being tested
         score_id = self.record_answers(test_form)[1]  # Get the ID of the score for the current test
 
-        self.main_window.fill(self.GRAY)
+        self.main_window.fill(self.color_scheme['GRAY'])
 
         # Main while loop
         while True:
@@ -58,25 +60,26 @@ class TestA(TestEnvironment):
             stimulus_adaptive_delay_ms = statistics.mean(last_8_responses)
 
             # Finish test after time runs out
-            if current_script_time_ms >= self.test_duration and stimulus_time == 0 and flip:
+            if current_script_time_ms >= test_duration and stimulus_time == 0 and flip:
                 flip = False
 
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
                 pygame.display.flip()
 
                 text_text = "Loading..."
                 title_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
-                    title_surface[0], title_surface[1].move(self.window_width * 0.44, self.text_pos[1] * 1.5))
-                pygame.display.flip()
+                    title_surface[0],
+                    title_surface[1].move(int(self.main_window.get_width()) * 0.44, self.text_pos[1] * 1.5))
 
+                pygame.display.flip()
                 time.sleep(2)
 
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
                 pygame.display.flip()
 
                 phase = "Exit"
@@ -92,7 +95,7 @@ class TestA(TestEnvironment):
                     # Start test by pressing any button/key
                     if phase == "Instructions":
                         phase = "Test"
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
                         time.sleep(stimulus_adaptive_delay_ms / 1000)
                         # Clear Event Queue to prevent from reacting before stimulus shown
@@ -103,7 +106,7 @@ class TestA(TestEnvironment):
                     # Catch reaction
                     elif phase == "Test":
 
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
 
                         pygame.mixer.pause()
@@ -197,12 +200,12 @@ class TestA(TestEnvironment):
 
             # Display START message
             if phase == "Instructions":
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
 
                 text_title = title
                 title_surface = self.title.render(
                     text=text_title,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.title.size
                 )
                 self.main_window.blit(title_surface[0], title_surface[1].move(self.title_pos))
@@ -210,7 +213,7 @@ class TestA(TestEnvironment):
                 text_text = f"User:       {username}"
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(text_surface[0], text_surface[1].move(self.text_pos))
@@ -218,7 +221,7 @@ class TestA(TestEnvironment):
                 text_text = "Following test is being measured."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -229,7 +232,7 @@ class TestA(TestEnvironment):
                 text_text = "Only one stimulus is being presented at a time."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -240,7 +243,7 @@ class TestA(TestEnvironment):
                 text_text = "React as fast as possible."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -251,7 +254,7 @@ class TestA(TestEnvironment):
                 text_text = "Tempo of the task assignment is changing during the test."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -259,10 +262,10 @@ class TestA(TestEnvironment):
                     text_surface[1].move(self.text_pos[0], self.text_pos[1] + self.text.size * 6.25)
                 )
 
-                text_text_5 = f"Test duration:      {self.test_duration / 60 / 1000} min"
+                text_text_5 = f"Test duration:      {test_duration / 60 / 1000} min"
                 middle_text_text_5_surface = self.text.render(
                     text=text_text_5,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -273,24 +276,24 @@ class TestA(TestEnvironment):
                 text_instr = "PRESS ANY BUTTON TO BEGIN"
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.instr.size
                 )
                 self.main_window.blit(
                     instr_surface[0],
-                    instr_surface[1].move(self.text_pos[0] + self.window_width * 0.6, self.instr_pos[1])
+                    instr_surface[1].move(self.text_pos[0] + int(self.main_window.get_width()) * 0.6, self.instr_pos[1])
                 )
 
             # Start the test
             elif phase == "Test":
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
 
                 # Set "time zero" when running the test
                 current_script_time_ms = (time.time_ns() - epoch_time) / 1000000
 
                 # Display stimulus
                 if not answered:
-                    self.main_window.fill(self.GRAY)
+                    self.main_window.fill(self.color_scheme['GRAY'])
                     question_set_index = question_set.question_set[stimulus_index]
                     if not tone_played:  # Prevent looping of the sound
                         self.stimulus(question_set_index, circle_position, stimulus_adaptive_delay_ms)
@@ -323,10 +326,10 @@ class TestA(TestEnvironment):
                     # Prepare new random position
                     circle_position = [
                         random.randint(
-                            0 + self.circle_size * 3,
-                            self.main_window.get_width() - self.circle_size * 3),
-                        random.randint(0 + self.circle_size * 3,
-                                       self.main_window.get_height() - self.circle_size * 3)]
+                            0 + self.stimulus_parameters['circle_size'] * 3,
+                            self.main_window.get_width() - self.stimulus_parameters['circle_size'] * 3),
+                        random.randint(0 + self.stimulus_parameters['circle_size'] * 3,
+                                       self.main_window.get_height() - self.stimulus_parameters['circle_size'] * 3)]
 
                     # Clear Event Queue to prevent from reacting before stimulus shown
                     pygame.event.clear()
@@ -348,12 +351,12 @@ class TestA(TestEnvironment):
 
             # Display EXIT message
             elif phase == "Exit":
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
 
                 text_title = title
                 title_surface = self.title.render(
                     text=text_title,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.title.size
                 )
                 self.main_window.blit(title_surface[0], title_surface[1].move(self.title_pos))
@@ -361,7 +364,7 @@ class TestA(TestEnvironment):
                 text_text = "The test is finished."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(text_surface[0], text_surface[1].move(self.text_pos))
@@ -369,7 +372,7 @@ class TestA(TestEnvironment):
                 text_text = f"Test ID:        {score_id}"
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -380,7 +383,7 @@ class TestA(TestEnvironment):
                 text_text = f"The results are available at {username}'s profile."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -391,18 +394,18 @@ class TestA(TestEnvironment):
                 text_instr = "PRESS ANY BUTTON TO RETURN TO THE MENU"
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.instr.size
                 )
                 self.main_window.blit(
                     instr_surface[0],
-                    instr_surface[1].move(self.text_pos[0] + self.window_width * 0.5, self.instr_pos[1])
+                    instr_surface[1].move(self.text_pos[0] + int(self.main_window.get_width()) * 0.5, self.instr_pos[1])
                 )
                 pygame.display.flip()
 
             # While loop routine
             pygame.display.update()
-            self.clock.tick_busy_loop(self.FPS)  # For more accurate display timer
+            self.clock.tick_busy_loop(self.FPS_ceiling)  # For more accurate display timer
 
 
 if __name__ == '__main__':

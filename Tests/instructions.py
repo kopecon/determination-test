@@ -9,62 +9,53 @@ from Tests.training import Training
 # ----------------------------------------------------------------------------------------------------------  Functions:
 class Instructions(TestEnvironment):
     # Define Stimulus Type
-    def stimulus(self, question_set_index, circle_position, sound_duration=1500):
+    def stimulus(self, stimulus_type, circle_position, sound_duration=1500):
         up_arrow_scale_factor = (100, 100)
         up_arrow_surface = pygame.Surface((200, 200))
-        up_arrow_surface.fill(self.GRAY)
+        up_arrow_surface.fill(self.color_scheme['GRAY'])
         down_arrow_scale_factor = (100, 100)
 
         # Color Circles
-        if question_set_index == "RED":
-            pygame.draw.circle(self.main_window, self.RED, circle_position, self.circle_size)
-
-        elif question_set_index == "BLUE":
-            pygame.draw.circle(self.main_window, self.BLUE, circle_position, self.circle_size)
-
-        elif question_set_index == "GREEN":
-            pygame.draw.circle(self.main_window, self.GREEN, circle_position, self.circle_size)
-
-        elif question_set_index == "YELLOW":
-            pygame.draw.circle(self.main_window, self.YELLOW, circle_position, self.circle_size)
-
-        elif question_set_index == "WHITE":
-            pygame.draw.circle(self.main_window, self.WHITE, circle_position, self.circle_size)
+        if stimulus_type in ['WHITE', 'GREEN', 'RED', 'YELLOW', 'BLUE']:
+            pygame.draw.circle(
+                self.main_window,
+                self.color_scheme[stimulus_type],
+                circle_position,
+                self.stimulus_parameters['circle_size'])
 
         # Pedals
-        elif question_set_index == "Left Pedal":
+        elif stimulus_type == "left_pedal":
             pygame.draw.rect(self.main_window,
-                             self.WHITE,
-                             (50, int(self.main_window.get_height() - self.pedal_height - 50),
-                              self.pedal_width,
-                              self.pedal_height))
+                             (253, 253, 253),
+                             (50, int(self.main_window.get_height() - self.stimulus_parameters['pedal_height'] - 50),
+                              self.stimulus_parameters['pedal_width'],
+                              self.stimulus_parameters['pedal_height']))
 
-        elif question_set_index == "Right Pedal":
+        elif stimulus_type == "right_pedal":
             pygame.draw.rect(self.main_window,
-                             self.WHITE,
-                             (int(self.main_window.get_width() - self.pedal_width - 50),
-                              int(self.main_window.get_height() - self.pedal_height - 50),
-                              self.pedal_width,
-                              self.pedal_height))
+                             (253, 253, 253),
+                             (int(self.main_window.get_width() - self.stimulus_parameters['pedal_width'] - 50),
+                              int(self.main_window.get_height() - self.stimulus_parameters['pedal_height'] - 50),
+                              self.stimulus_parameters['pedal_width'],
+                              self.stimulus_parameters['pedal_height']))
 
         # Sound
-        elif question_set_index == "High Tone":
-            if pygame.mixer.get_busy():
-                pygame.mixer.stop()
-                pygame.time.wait(100)
-            self.high_tone.play(loops=0, fade_ms=10)
+        elif stimulus_type in ['high_tone', 'low_tone']:
+            self.sound_bank[stimulus_type].play(loops=0, maxtime=int(sound_duration), fade_ms=10)
 
-        elif question_set_index == "Low Tone":
-            if pygame.mixer.get_busy():
-                pygame.mixer.stop()
-                pygame.time.wait(100)
-            self.low_tone.play(loops=0, fade_ms=10)
+        elif stimulus_type == "Up Arrow":
+            pygame.draw.circle(
+                up_arrow_surface,
+                (self.color_scheme['GRAY'][0] - 28,
+                 self.color_scheme['GRAY'][1] - 28,
+                 self.color_scheme['GRAY'][2] - 28),
+                (100, 100), 100)
 
-        elif question_set_index == "Up Arrow":
-            pygame.draw.circle(up_arrow_surface, (self.GRAY[0] - 28, self.GRAY[1] - 28, self.GRAY[2] - 28),
-                               (100, 100), 100)
-            pygame.draw.polygon(up_arrow_surface, self.WHITE, ((90, 160), (90, 100), (70, 100), (100, 40), (130, 100),
-                                                               (110, 100), (110, 160)))
+            pygame.draw.polygon(
+                up_arrow_surface,
+                self.color_scheme['WHITE'],
+                ((90, 160), (90, 100), (70, 100), (100, 40), (130, 100), (110, 100), (110, 160)))
+
             scaled_arrow = pygame.transform.smoothscale(up_arrow_surface, up_arrow_scale_factor)
             up_arrow_rect = scaled_arrow.get_rect(center=(
                 self.main_window.get_width() / 2,
@@ -72,11 +63,18 @@ class Instructions(TestEnvironment):
             )
             self.main_window.blit(scaled_arrow, up_arrow_rect)
 
-        elif question_set_index == "Down Arrow":
-            pygame.draw.circle(up_arrow_surface, (self.GRAY[0] - 28, self.GRAY[1] - 28, self.GRAY[2] - 28),
-                               (100, 100), 100)
-            pygame.draw.polygon(up_arrow_surface, self.WHITE, ((90, 160), (90, 100), (70, 100), (100, 40), (130, 100),
-                                                               (110, 100), (110, 160)))
+        elif stimulus_type == "Down Arrow":
+            pygame.draw.circle(
+                up_arrow_surface,
+                (self.color_scheme['GRAY'][0] - 28,
+                 self.color_scheme['GRAY'][1] - 28,
+                 self.color_scheme['GRAY'][2] - 28),
+                (100, 100), 100)
+            pygame.draw.polygon(
+                up_arrow_surface,
+                self.color_scheme['WHITE'],
+                ((90, 160), (90, 100), (70, 100), (100, 40), (130, 100), (110, 100), (110, 160)))
+
             scaled_arrow = pygame.transform.smoothscale(up_arrow_surface, down_arrow_scale_factor)
             down_arrow = pygame.transform.rotate(scaled_arrow, 180)
             down_arrow_rect = scaled_arrow.get_rect(center=(
@@ -86,6 +84,7 @@ class Instructions(TestEnvironment):
             self.main_window.blit(down_arrow, down_arrow_rect)
 
     def run(self, phase="Color stimuli instructions"):
+
         test_form = "INSTRUCTIONS"
 
         # Test title
@@ -95,7 +94,7 @@ class Instructions(TestEnvironment):
         # Declare test specific variables
         stimulus_index = 0
         instructions_color_stimulus_answer_set = [pygame.K_w, pygame.K_y, pygame.K_b, pygame.K_g, pygame.K_r]
-        instructions_pedal_question_set = ["Left Pedal", "Right Pedal", "Left Pedal", "Right Pedal"]
+        instructions_pedal_question_set = ["left_pedal", "right_pedal", "left_pedal", "right_pedal"]
         instructions_pedal_answer_set = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_RIGHT]
         instructions_color_stimulus_question_set = ["WHITE", "YELLOW", "BLUE", "GREEN", "RED"]
         circle_position = [self.main_window.get_width() / 2, self.main_window.get_height() / 2]
@@ -105,7 +104,7 @@ class Instructions(TestEnvironment):
         panel_detected = input_device_config[0]  # Was control panel successfully detected?
         buttons = input_device_config[1]  # Hardware configuration of buttons or None if panel was not detected
 
-        self.main_window.fill(self.GRAY)
+        self.main_window.fill(self.color_scheme['GRAY'])
 
         # Main While loop
         while True:
@@ -123,7 +122,7 @@ class Instructions(TestEnvironment):
                     if phase == "Color stimuli instructions":
                         stimulus_index = 0
                         phase = "Color stimuli testing"
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
                         time.sleep(0.5)
 
@@ -132,20 +131,20 @@ class Instructions(TestEnvironment):
                             and event.key == instructions_color_stimulus_answer_set[stimulus_index]:
                         if stimulus_index < len(instructions_color_stimulus_question_set) - 1:
                             stimulus_index += 1
-                            self.main_window.fill(self.GRAY)
+                            self.main_window.fill(self.color_scheme['GRAY'])
                             pygame.display.flip()
                             time.sleep(0.25)
                         else:
                             phase = "Pedal stimuli instructions"
                             stimulus_index = 0
-                            self.main_window.fill(self.GRAY)
+                            self.main_window.fill(self.color_scheme['GRAY'])
                             pygame.display.flip()
                             time.sleep(0.25)
 
                     # Second Checkpoint
                     elif phase == "Pedal stimuli instructions":
                         phase = "Pedal stimuli testing"
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
                         time.sleep(0.5)
 
@@ -154,13 +153,13 @@ class Instructions(TestEnvironment):
                             and event.key == instructions_pedal_answer_set[stimulus_index]:
                         if stimulus_index < len(instructions_pedal_question_set) - 1:
                             stimulus_index += 1
-                            self.main_window.fill(self.GRAY)
+                            self.main_window.fill(self.color_scheme['GRAY'])
                             pygame.display.flip()
                             time.sleep(0.25)
                         else:
                             stimulus_index = 0
                             phase = "Sound stimuli instructions"
-                            self.main_window.fill(self.GRAY)
+                            self.main_window.fill(self.color_scheme['GRAY'])
                             pygame.display.flip()
                             time.sleep(0.25)
 
@@ -168,7 +167,7 @@ class Instructions(TestEnvironment):
                     elif phase == "Sound stimuli instructions":
                         stimulus_index = 0
                         phase = "Sound stimuli testing"
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
                         time.sleep(0.5)
 
@@ -188,12 +187,12 @@ class Instructions(TestEnvironment):
 
             # First Checkpoint Message
             if phase == "Color stimuli instructions":
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
 
                 text_title = title
                 title_surface = self.title.render(
                     text=text_title,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.title.size
                 )
                 self.main_window.blit(title_surface[0], title_surface[1].move(self.title_pos))
@@ -201,7 +200,7 @@ class Instructions(TestEnvironment):
                 text_instr = "COLOR STIMULI"
                 text_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(text_surface[0], text_surface[1].move(self.text_pos))
@@ -209,7 +208,7 @@ class Instructions(TestEnvironment):
                 text_text = "Following exercises are not being measured."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -220,7 +219,7 @@ class Instructions(TestEnvironment):
                 text_text = "Only one stimulus is being presented at a time."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -231,7 +230,7 @@ class Instructions(TestEnvironment):
                 text_text = "Press the button with the same color as the stimuli shown on the screen."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -242,12 +241,12 @@ class Instructions(TestEnvironment):
                 text_instr = "PRESS ANY BUTTON TO BEGIN"
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.instr.size
                 )
                 self.main_window.blit(
                     instr_surface[0],
-                    instr_surface[1].move(self.text_pos[0] + self.window_width * 0.6, self.instr_pos[1])
+                    instr_surface[1].move(self.text_pos[0] + int(self.main_window.get_width()) * 0.6, self.instr_pos[1])
                 )
 
             # Display Color Stimulus instructions
@@ -258,17 +257,17 @@ class Instructions(TestEnvironment):
                 else:
                     color_stimulus_question_set_index = 0
 
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
                 self.stimulus(color_stimulus_question_set_index, circle_position)
 
             # Second Checkpoint Message
             elif phase == "Pedal stimuli instructions":
 
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
                 text_instr = "PEDALS"
                 text_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(text_surface[0], text_surface[1].move(self.text_pos))
@@ -276,7 +275,7 @@ class Instructions(TestEnvironment):
                 text_text = "Following exercises are not being measured."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -287,7 +286,7 @@ class Instructions(TestEnvironment):
                 text_text = "Only one stimulus is being presented at a time."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -298,7 +297,7 @@ class Instructions(TestEnvironment):
                 text_text = "Press the pedal with the same position as the stimuli shown on the screen."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -309,12 +308,12 @@ class Instructions(TestEnvironment):
                 text_instr = "PRESS ANY BUTTON TO BEGIN"
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.instr.size
                 )
                 self.main_window.blit(
                     instr_surface[0],
-                    instr_surface[1].move(self.text_pos[0] + self.window_width * 0.6, self.instr_pos[1])
+                    instr_surface[1].move(self.text_pos[0] + int(self.main_window.get_width()) * 0.6, self.instr_pos[1])
                 )
 
             # Display Pedal instructions
@@ -324,18 +323,18 @@ class Instructions(TestEnvironment):
                 else:
                     pedal_question_set_index = 0
 
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
                 self.stimulus(pedal_question_set_index, circle_position)
                 pygame.display.flip()
 
             # Third Checkpoint Message
             elif phase == "Sound stimuli instructions":
 
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
                 text_instr = "ACOUSTIC STIMULI"
                 text_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(text_surface[0], text_surface[1].move(self.text_pos))
@@ -343,7 +342,7 @@ class Instructions(TestEnvironment):
                 text_text = "Following exercises are not being measured."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -354,7 +353,7 @@ class Instructions(TestEnvironment):
                 text_text = "Press the buttons to hear the sound they represent."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -365,64 +364,65 @@ class Instructions(TestEnvironment):
                 text_instr = "PRESS ANY BUTTON TO BEGIN"
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.instr.size
                 )
                 self.main_window.blit(
                     instr_surface[0],
-                    instr_surface[1].move(self.text_pos[0] + self.window_width * 0.6, self.instr_pos[1])
+                    instr_surface[1].move(self.text_pos[0] + int(self.main_window.get_width()) * 0.6, self.instr_pos[1])
                 )
 
             # Present Tone instructions
             elif phase == "Sound stimuli testing":
 
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
                 self.stimulus("Up Arrow", circle_position)
                 self.stimulus("Down Arrow", circle_position)
 
                 text_instr = "PRESS UP ARROW BUTTON TO HEAR THE HIGH TONE."
                 instr_surface = self.text.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
-                    size=self.instr.size
-                )
-
-                self.main_window.blit(
-                    instr_surface[0],
-                    instr_surface[1].move(self.title_pos[0] + self.window_width * 0.22, self.title_pos[1])
-                )
-
-                text_instr = "PRESS DOWN ARROW BUTTON TO HEAR THE LOW TONE."
-                instr_surface = self.text.render(
-                    text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
-                    size=self.instr.size
-                )
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
+                    size=self.instr.size)
 
                 self.main_window.blit(
                     instr_surface[0],
                     instr_surface[1].move(
-                        self.title_pos[0] + self.window_width * 0.2, self.title_pos[1] + self.text.size * 1.25)
-                )
+                        self.title_pos[0] + int(self.main_window.get_width()) * 0.22, self.title_pos[1]))
+
+                text_instr = "PRESS DOWN ARROW BUTTON TO HEAR THE LOW TONE."
+                instr_surface = self.text.render(
+                    text=text_instr,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
+                    size=self.instr.size)
+
+                self.main_window.blit(
+                    instr_surface[0],
+                    instr_surface[1].move(
+                        self.title_pos[0] + int(self.main_window.get_width()) * 0.2,
+                        self.title_pos[1] + self.text.size * 1.25))
 
                 text_instr = "PRESS WHITE BUTTON TO BEGIN THE TRAINING."
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.instr.size
                 )
 
                 self.main_window.blit(
                     instr_surface[0],
-                    instr_surface[1].move(self.text_pos[0] + self.window_width * 0.22, self.instr_pos[1])
-                )
+                    instr_surface[1].move(self.text_pos[0] + int(self.main_window.get_width()) * 0.22,
+                                          self.instr_pos[1]))
 
                 pygame.display.flip()
 
             # While loop routine
             pygame.display.update()
-            self.clock.tick_busy_loop(self.FPS)  # For more accurate display timer
+            self.clock.tick_busy_loop(self.FPS_ceiling)  # For more accurate display timer
 
+
+if __name__ == '__main__':
+    Instructions().run()
 
 if __name__ == '__main__':
     Instructions().run()

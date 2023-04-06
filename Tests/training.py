@@ -10,6 +10,7 @@ from Tests.test_environment import TestEnvironment
 class Training(TestEnvironment):
     # Method that starts the test
     def run(self, phase="Instructions"):
+
         test_form = "Training"
 
         # Test title
@@ -36,7 +37,7 @@ class Training(TestEnvironment):
         panel_detected = input_device_config[0]  # Was control panel successfully detected?
         buttons = input_device_config[1]  # Hardware configuration of buttons or None if panel was not detected
 
-        self.main_window.fill(self.GRAY)
+        self.main_window.fill(self.color_scheme['GRAY'])
 
         # Main while loop
         while True:
@@ -55,7 +56,7 @@ class Training(TestEnvironment):
                     # Start test by pressing any button/key
                     if phase == "Instructions":
                         phase = "Test"
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
                         time.sleep(stimulus_delay_time / 1000)
                         # Clear Event Queue to prevent from reacting before stimulus shown
@@ -66,7 +67,7 @@ class Training(TestEnvironment):
                     # Catch reaction
                     elif phase == "Test":
 
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
 
                         pygame.mixer.stop()
@@ -109,12 +110,12 @@ class Training(TestEnvironment):
 
             # Display START message
             if phase == "Instructions":
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
 
                 text_title = title
                 title_surface = self.title.render(
                     text=text_title,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.title.size
                 )
                 self.main_window.blit(title_surface[0], title_surface[1].move(self.title_pos))
@@ -122,7 +123,7 @@ class Training(TestEnvironment):
                 text_text = "Following exercise is not being measured."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -133,7 +134,7 @@ class Training(TestEnvironment):
                 text_text = "Only one stimulus is being presented at a time."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -144,7 +145,7 @@ class Training(TestEnvironment):
                 text_text = "Try answering correctly."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -155,7 +156,7 @@ class Training(TestEnvironment):
                 text_text = "Tempo of the task assignment is fixed."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -168,7 +169,7 @@ class Training(TestEnvironment):
                 } min'''
                 middle_text_text_5_surface = self.text.render(
                     text=text_text_5,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -179,24 +180,24 @@ class Training(TestEnvironment):
                 text_instr = "PRESS ANY BUTTON TO BEGIN"
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.instr.size
                 )
                 self.main_window.blit(
                     instr_surface[0],
-                    instr_surface[1].move(self.text_pos[0] + self.window_width * 0.6, self.instr_pos[1])
+                    instr_surface[1].move(self.text_pos[0] + int(self.main_window.get_width()) * 0.6, self.instr_pos[1])
                 )
 
             # Start the test
             elif phase == "Test":
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
 
                 # Set "time zero" when running the test
                 current_script_time_ms = (time.time_ns() - epoch_time) / 1000000
 
                 # Display stimulus
                 if not answered:
-                    self.main_window.fill(self.GRAY)
+                    self.main_window.fill(self.color_scheme['GRAY'])
                     question_set_index = question_set.training_question_set[stimulus_index]
                     if not tone_played:  # Prevent looping of the sound
                         self.stimulus(question_set_index, circle_position)
@@ -225,22 +226,24 @@ class Training(TestEnvironment):
                         # Change circle position
                         circle_position = self.random_circle_position()
                     else:
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
 
                         text_text = "Loading..."
                         title_surface = self.text.render(
                             text=text_text,
-                            fgcolor=self.LIGHT_GRAY,
+                            fgcolor=self.color_scheme['LIGHT_GRAY'],
                             size=self.text.size
                         )
                         self.main_window.blit(
-                            title_surface[0], title_surface[1].move(self.window_width * 0.44, self.text_pos[1] * 1.5))
+                            title_surface[0],
+                            title_surface[1].move(int(self.main_window.get_width()) * 0.44, self.text_pos[1] * 1.5))
+
                         pygame.display.flip()
 
                         time.sleep(2)
 
-                        self.main_window.fill(self.GRAY)
+                        self.main_window.fill(self.color_scheme['GRAY'])
                         pygame.display.flip()
                         if incorrect_answer >= 4 or missed_answer >= 4:
                             phase = "Exit Failure"
@@ -254,12 +257,12 @@ class Training(TestEnvironment):
 
             # Display EXIT Failure message
             elif phase == "Exit Failure":
-                self.main_window.fill(self.GRAY)
+                self.main_window.fill(self.color_scheme['GRAY'])
 
                 text_title = title
                 title_surface = self.title.render(
                     text=text_title,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.title.size
                 )
                 self.main_window.blit(title_surface[0], title_surface[1].move(self.title_pos))
@@ -267,7 +270,7 @@ class Training(TestEnvironment):
                 text_text = "The training is finished."
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(text_surface[0], text_surface[1].move(self.text_pos))
@@ -275,7 +278,7 @@ class Training(TestEnvironment):
                 text_text = f"Result:   Failure"
                 text_surface = self.text.render(
                     text=text_text,
-                    fgcolor=self.LIGHT_GRAY,
+                    fgcolor=self.color_scheme['LIGHT_GRAY'],
                     size=self.text.size
                 )
                 self.main_window.blit(
@@ -286,19 +289,19 @@ class Training(TestEnvironment):
                 text_instr = "GREEN BUTTON: TEST"
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.GREEN,
+                    fgcolor=self.color_scheme['GREEN'],
                     size=self.instr.size
                 )
                 self.main_window.blit(
                     instr_surface[0],
-                    instr_surface[1].move(self.text_pos[0] + self.window_width * 0.58, self.instr_pos[1])
+                    instr_surface[1].move(
+                        self.text_pos[0] + int(self.main_window.get_width()) * 0.58, self.instr_pos[1])
                 )
-                pygame.display.flip()
 
                 text_instr = "RED BUTTON:   INSTRUCTIONS"
                 instr_surface = self.instr.render(
                     text=text_instr,
-                    fgcolor=self.RED,
+                    fgcolor=self.color_scheme['RED'],
                     size=self.instr.size
                 )
                 self.main_window.blit(
@@ -309,7 +312,7 @@ class Training(TestEnvironment):
 
             # While loop routine
             pygame.display.update()
-            self.clock.tick_busy_loop(self.FPS)  # For more accurate display timer
+            self.clock.tick_busy_loop(self.FPS_ceiling)  # For more accurate display timer
 
 
 if __name__ == '__main__':

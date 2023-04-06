@@ -24,26 +24,19 @@ class TestEnvironment(ABC):
         self.volume = 0.2  # Volume of the sound stimulus - Values from 0 to 1 (1 = Max volume) [%]
 
         # Display parameters
-        self.FPS = 2000  # Frame rate celling
+        self.FPS_ceiling = 2000  # Frame rate celling
 
-        # Visual stimulus parameters
-        self.circle_size = 100  # Radius of the color circle stimulus [pixel]
-        self.pedal_width = 150  # Width of the pedal symbol [pixel]
-        self.pedal_height = 250  # Height of the pedal symbol [pixel]
+        self.stimulus_parameters = {'circle_size': 100, 'pedal_width': 150, 'pedal_height': 250}
 
         # Switch debounce time [s] - empirically measured time (countermeasure to left pedal "Switch Bounce")
         self.debounce_time = 0.2  # Could be around 190 ms
 
         # Style color palette
-        self.GRAY = (41, 43, 45)
-        self.LIGHT_GRAY = (self.GRAY[0] + 120, self.GRAY[0] + 120, self.GRAY[0] + 120)
-        self.BLACK = (0, 0, 0)
-        self.GREEN = (7, 169, 48)
-        self.WHITE = (253, 253, 253)
-        self.BLUE = (0, 0, 179)
-        self.RED = (159, 0, 27)
-        self.YELLOW = (255, 204, 0)
-        self.color_types = [self.GREEN, self.BLUE, self.RED, self.YELLOW, self.WHITE]
+        self.color_scheme = {'GRAY': (41, 43, 45),
+                             'LIGHT_GRAY': (161, 163, 165),
+                             'BLACK': (0, 0, 0), 'GREEN': (7, 169, 48),
+                             'WHITE': (253, 253, 253), 'BLUE': (0, 0, 179),
+                             'RED': (159, 0, 27), 'YELLOW': (255, 204, 0)}
 
         # Directory to search for dependencies
         self.project_dir = os.path.join(os.getcwd(), os.pardir)
@@ -153,36 +146,41 @@ class TestEnvironment(ABC):
     def stimulus(self, question_set_index, circle_position, sound_duration=1500):
 
         # Color Circles
-        if question_set_index == "red":
-            pygame.draw.circle(self.main_window, self.RED, circle_position, self.circle_size)
+        if question_set_index == "RED":
+            pygame.draw.circle(self.main_window, self.color_scheme['RED'],
+                               circle_position, self.stimulus_parameters['circle_size'])
 
-        elif question_set_index == "blue":
-            pygame.draw.circle(self.main_window, self.BLUE, circle_position, self.circle_size)
+        elif question_set_index == "BLUE":
+            pygame.draw.circle(self.main_window, self.color_scheme['BLUE'],
+                               circle_position, self.stimulus_parameters['circle_size'])
 
-        elif question_set_index == "green":
-            pygame.draw.circle(self.main_window, self.GREEN, circle_position, self.circle_size)
+        elif question_set_index == "GREEN":
+            pygame.draw.circle(self.main_window, self.color_scheme['GREEN'],
+                               circle_position, self.stimulus_parameters['circle_size'])
 
-        elif question_set_index == "yellow":
-            pygame.draw.circle(self.main_window, self.YELLOW, circle_position, self.circle_size)
+        elif question_set_index == "YELLOW":
+            pygame.draw.circle(self.main_window, self.color_scheme['YELLOW'],
+                               circle_position, self.stimulus_parameters['circle_size'])
 
-        elif question_set_index == "white":
-            pygame.draw.circle(self.main_window, self.WHITE, circle_position, self.circle_size)
+        elif question_set_index == "WHITE":
+            pygame.draw.circle(self.main_window, self.color_scheme['WHITE'],
+                               circle_position, self.stimulus_parameters['circle_size'])
 
         # Pedals
         elif question_set_index == "left_pedal":
             pygame.draw.rect(self.main_window,
                              (253, 253, 253),
-                             (50, int(self.main_window.get_height() - self.pedal_height - 50),
-                              self.pedal_width,
-                              self.pedal_height))
+                             (50, int(self.main_window.get_height() - self.stimulus_parameters['pedal_height'] - 50),
+                              self.stimulus_parameters['pedal_width'],
+                              self.stimulus_parameters['pedal_height']))
 
         elif question_set_index == "right_pedal":
             pygame.draw.rect(self.main_window,
                              (253, 253, 253),
-                             (int(self.main_window.get_width() - self.pedal_width - 50),
-                              int(self.main_window.get_height() - self.pedal_height - 50),
-                              self.pedal_width,
-                              self.pedal_height))
+                             (int(self.main_window.get_width() - self.stimulus_parameters['pedal_width'] - 50),
+                              int(self.main_window.get_height() - self.stimulus_parameters['pedal_height'] - 50),
+                              self.stimulus_parameters['pedal_width'],
+                              self.stimulus_parameters['pedal_height']))
 
         # Sound
         elif question_set_index == "high_tone":
@@ -192,8 +190,10 @@ class TestEnvironment(ABC):
             self.low_tone.play(loops=0, maxtime=int(sound_duration), fade_ms=10)
 
     def random_circle_position(self):
-        position = [random.randint(0 + self.circle_size * 3, self.main_window.get_width() - self.circle_size * 3),
-                    random.randint(0 + self.circle_size * 3, self.main_window.get_height() - self.circle_size * 3)]
+        position = [random.randint(0 + self.stimulus_parameters['circle_size'] * 3,
+                                   self.main_window.get_width() - self.stimulus_parameters['circle_size'] * 3),
+                    random.randint(0 + self.stimulus_parameters['circle_size'] * 3,
+                                   self.main_window.get_height() - self.stimulus_parameters['circle_size'] * 3)]
         return position
 
     # Method that initialises recording of the answers for the upcoming test
