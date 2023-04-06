@@ -113,7 +113,7 @@ class TestEnvironment(ABC):
                    'red_button': None, 'up_button': None, 'down_button': None, 'left_pedal': None, 'right_pedal': None}
 
         # User chose to use control pane to control the test
-        if self.device is not None and self.device.input_device == "CONTROL PANEL":
+        if self.device is not None and self.device.device_type == "CONTROL PANEL":
             # Protect if panel IP address is not found
             try:
                 # Create a connection to the Raspberry Pi remote GPIO
