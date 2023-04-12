@@ -1,7 +1,7 @@
 from kivy.app import App
 from kivy.core.text import LabelBase
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, BooleanProperty
+from kivy.properties import BooleanProperty
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -158,11 +158,6 @@ class InputDeviceIP(Screen):
 
 # Create Main Menu Screen
 class MainScreen(TabbedPanel, Screen):
-    form_A_button_id = ObjectProperty(None)
-    form_B_button_id = ObjectProperty(None)
-    form_C_button_id = ObjectProperty(None)
-    profile_tab = ObjectProperty(None)
-    test_tab = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
@@ -170,6 +165,8 @@ class MainScreen(TabbedPanel, Screen):
 
     # Update list of users on entering the screen "List of Users"
     def on_enter(self, *args):
+        for item in self.ids:
+            print(item)
         self.ids.user_list_view.refresh_view()
 
     @staticmethod
@@ -192,6 +189,7 @@ class MainScreen(TabbedPanel, Screen):
         self.ids.user_list_view.refresh_view()  # Refresh the list of users
 
     def start_test(self):
+
         # Check if the user is selected
         if Menu.current_user.is_selected:
             App.get_running_app().stop()
