@@ -16,7 +16,7 @@ from kivy.core.window import Window
 from datetime import datetime
 import random
 
-# --------------------------------------------------------------------------------------      Import Custom Program Code
+# ------------------------------------------------------------------------------------------  Import Custom Program Code
 from Database import user_database
 from Tests.test_a import TestA
 from Tests.test_b import TestB
@@ -29,7 +29,7 @@ no_user_popup = Popup(title="Reminder", content=Label(text="No User Selected"), 
 no_test_popup = Popup(title="Reminder", content=Label(text="No Test Selected"), size_hint=(None, None), size=(200, 100))
 
 
-# -------------------------------------------------------------------------------------------------------      Functions
+# -----------------------------------------------------------------------------------------------------------  Functions
 # Create a function that allows reopening window after closing it
 # solution by: https://stackoverflow.com/questions/68697821/can-i-close-kivy-window-and-open-it-again
 def reset():
@@ -44,7 +44,7 @@ def reset():
             Cache._objects[cat] = {}
 
 
-# -------------------------------------------------------------------------------      Load a layout style form .kv file
+# -----------------------------------------------------------------------------------  Load a layout style form .kv file
 LabelBase.register(name='Ardestine',
                    fn_regular='Style/Fonts/Ardestine.ttf')
 LabelBase.register(name='D-DINCondensed',
@@ -55,7 +55,7 @@ LabelBase.register(name='Montserrat-SemiBold',
 Builder.load_file("Style/menu_layout.kv")
 
 
-# --------------------------------------------------------------------------------------------------      Define Classes
+# ------------------------------------------------------------------------------------------------------  Define Classes
 
 # Setup Classes for Recycle View by Kivy:
 # https://kivy.org/doc/stable/api-kivy.uix.recycleview.html?highlight=recycle%20view#module-kivy.uix.recycleview
@@ -66,7 +66,7 @@ class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, Recycle
     pass
 
 
-# Process the selecting of label representing specific user
+# Process the selecting of a label representing the specific user
 class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
     index = None
     selected = BooleanProperty(False)
@@ -103,7 +103,25 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
             Menu.current_user = User(None, None, None, None, None, None, False)
 
 
-# Process the selecting of label representing specific score
+# Create a List of Users
+class UserRV(RecycleView):
+    def __init__(self, **kwargs):
+        super(UserRV, self).__init__(**kwargs)
+
+    def refresh_view(self):
+        user_database.create_user_table()
+        user_database.create_score_table()
+        user_database.create_answer_table()
+        user_database.select_all_users()
+        user_records = user_database.select_all_users()
+
+        # Extract data from "DTUserDatabase.db" to create Selectablelabels with users in "List of Users" screen
+        self.data = [{
+            'order': str(iteration + 1), 'firstname': str(user[2]), 'surname': str(user[3]), 'user_id': str(user[0])
+        } for iteration, user in enumerate(user_records)]
+
+
+# Process the selecting of a label representing the specific score
 class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
     index = None
     selected = BooleanProperty(False)
@@ -140,15 +158,35 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
             Menu.current_user.current_score = Score(None, None, None, None, False)
 
 
+# Create a List of User Records
+class ScoreRV(RecycleView):
+    def __init__(self, **kwargs):
+        super(ScoreRV, self).__init__(**kwargs)
+
+    def refresh_view(self):
+        user_database.create_user_table()
+        user_database.create_score_table()
+        user_database.create_answer_table()
+        user_database.select_all_users()
+        score_records = user_database.select_every_score_for_current_user(Menu.current_user.user_id)
+
+        # Extract data from "DTUserDatabase.db" to create Selectablelabels with scores in "User Records" screen
+        self.data = [{'label_0': str(score[1]),
+                      'label_3': str(score[2]),
+                      'label_4': str(score[3])
+                      } for iteration, score in enumerate(score_records)]
+
+
 # Create the Intro screen
-class IntroScreen(Screen):
+class DeviceScreen(Screen):
     # Find selected input device
     @staticmethod
     def select_input_device(input_device_val):
         Menu.input_device.device_type = input_device_val
 
 
-class InputDeviceIP(Screen):
+# Create a screen where user fills in the device IP (if using the control panel)
+class DeviceIPScreen(Screen):
     def submit_ip_address(self):
         Menu.input_device.device_ip = str(self.ids.input_device_ip_text_input_id.text)
 
@@ -184,45 +222,8 @@ class MainScreen(TabbedPanel, Screen):
         self.ids.user_list_view.refresh_view()  # Refresh the list of users
 
 
-# Create a List of Users
-class UsersRV(RecycleView):
-    def __init__(self, **kwargs):
-        super(UsersRV, self).__init__(**kwargs)
-
-    def refresh_view(self):
-        user_database.create_user_table()
-        user_database.create_score_table()
-        user_database.create_answer_table()
-        user_database.select_all_users()
-        user_records = user_database.select_all_users()
-
-        # Extract data from "DTUserDatabase.db" to create Selectablelabels with users in "List of Users" screen
-        self.data = [{
-            'order': str(iteration + 1), 'firstname': str(user[2]), 'surname': str(user[3]), 'user_id': str(user[0])
-        } for iteration, user in enumerate(user_records)]
-
-
-# Create a List of User Records
-class UserRecordsRV(RecycleView):
-    def __init__(self, **kwargs):
-        super(UserRecordsRV, self).__init__(**kwargs)
-
-    def refresh_view(self):
-        user_database.create_user_table()
-        user_database.create_score_table()
-        user_database.create_answer_table()
-        user_database.select_all_users()
-        score_records = user_database.select_every_score_for_current_user(Menu.current_user.user_id)
-
-        # Extract data from "DTUserDatabase.db" to create Selectablelabels with scores in "User Records" screen
-        self.data = [{'label_0': str(score[1]),
-                      'label_3': str(score[2]),
-                      'label_4': str(score[3])
-                      } for iteration, score in enumerate(score_records)]
-
-
 # Create a User Records List Screen
-class UserRecords(TabbedPanel, Screen):
+class ScoreScreen(TabbedPanel, Screen):
 
     # Update list of users on entering the screen "List of Users"
     def on_enter(self, *args):
@@ -353,9 +354,9 @@ class Tests:
     test_c = TestC
 
 
-# ------------------------------------------------------------------------------------------      Main application class
+# ----------------------------------------------------------------------------------------------  Main application class
 class Menu(App):
-    # Selected user, who is being modified
+    # Selected user, who is being modified (this value is modified when the user selects any row in user tab)
     current_user = User(None)
 
     # Used device properties
@@ -366,7 +367,7 @@ class Menu(App):
     instructions = None
 
     # Screen instances
-    user_records_screen = UserRecords(name="User Records")
+    user_records_screen = ScoreScreen(name="User Records")
     main_screen = MainScreen(name="Main Screen")
     user_creator_screen = UserCreator(name="User Creator")
 
@@ -374,6 +375,7 @@ class Menu(App):
     def select_test(self, test_form, checkbox, value):
         _ = checkbox  # Throw away unused argument passed by the pressed radio button
         if value:
+            # Assign the current test based on the selected radiobutton
             self.test = (getattr(Tests, test_form))()
         else:
             self.test = None
@@ -437,13 +439,13 @@ class Menu(App):
         # sm.add_widget(IntroScreen(name="Intro Screen"))
         # sm.add_widget(InputDeviceIP(name="Input Device IP Screen"))
         sm.add_widget(MainScreen(name="Main Screen"))
-        sm.add_widget(UserRecords(name="User Records"))
+        sm.add_widget(ScoreScreen(name="User Records"))
         sm.add_widget(UserCreator(name="User Creator"))
         self.title = "DT Menu"
         return sm
 
 
-# --------------------------------------------------------------------------------------------      Run Menu Application
+# ------------------------------------------------------------------------------------------------  Run Menu Application
 
 if __name__ == '__main__':
     Menu().run()
