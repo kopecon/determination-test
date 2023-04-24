@@ -120,7 +120,7 @@
         text: root.label_4
 
 
-<UsersRV>:
+<UserRV>:
     viewclass: 'UserSelectableLabel'
     SelectableRecycleBoxLayout:
         # padding: 10
@@ -132,7 +132,7 @@
         orientation: 'vertical'
 
 
-<UserRecordsRV>:
+<ScoreRV>:
     viewclass: 'ScoreSelectableLabel'
     SelectableRecycleBoxLayout:
         # padding: 10
@@ -333,7 +333,7 @@
             Separator:
                 height: 3
 
-            UsersRV:
+            UserRV:
                 id: user_list_view
                 spacing: 10
             Separator:
@@ -520,7 +520,7 @@
                     size_hint_x: 0.3
                     text: 'Date'
 
-            UserRecordsRV:
+            ScoreRV:
                 id: user_records_view
                 spacing: 10
                 # size_hint: (1, None)
