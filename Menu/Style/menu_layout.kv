@@ -120,7 +120,7 @@
         text: root.label_4
 
 
-<UserRV>:
+<UsersRV>:
     viewclass: 'UserSelectableLabel'
     SelectableRecycleBoxLayout:
         # padding: 10
@@ -269,7 +269,7 @@
     do_default_tab: False
 
     TabbedPanelItem:
-        id: profile_tab_id
+        id: users_tab
         border: [0, 0, 0, 1]
         text: "USERS"
         font_name: "Montserrat-SemiBold"
@@ -333,7 +333,7 @@
             Separator:
                 height: 3
 
-            UserRV:
+            UsersRV:
                 id: user_list_view
                 spacing: 10
             Separator:
@@ -346,7 +346,7 @@
                     size_hint: (0.2, 0.5)
                     pos_hint: ({"x":0.4})
                     on_press: root.manager.transition.direction = "left"
-                    on_press: root.manager.current = "User Creator"
+                    on_press: root.manager.current = "User Creator Screen"
 
                 Button:
                     background_normal: "Style/Icons/Bin.png"
@@ -358,8 +358,8 @@
                 size_hint: (1,0.2)
 
     TabbedPanelItem:
-        id: test_tab_id
-        text: "TEST"
+        id: tests_tab
+        text: "TESTS"
         font_name: "Montserrat-SemiBold"
         color: 0,0,0,1
         strip_border: True
@@ -466,7 +466,7 @@
                     allow_no_selection: False
             Separator:
 
-<UserRecords>
+<UserRecordsScreen>
     do_default_tab: False
     TabbedPanelItem:
         id: score_tab_id

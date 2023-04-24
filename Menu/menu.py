@@ -84,7 +84,8 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
-                Menu.main_screen.go_to_user_records()
+                App.get_running_app().root.transition.direction = "left"
+                App.get_running_app().root.current = "User Records"
             return self.parent.select_with_touch(self.index, touch)
 
     # Connect selected label to its database reference and get its user's id
@@ -104,9 +105,9 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
 
 # Create a List of Users
-class UserRV(RecycleView):
+class UsersRV(RecycleView):
     def __init__(self, **kwargs):
-        super(UserRV, self).__init__(**kwargs)
+        super(UsersRV, self).__init__(**kwargs)
 
     def refresh_view(self):
         user_database.create_user_table()
@@ -191,9 +192,8 @@ class DeviceIPScreen(Screen):
         Menu.input_device.device_ip = str(self.ids.input_device_ip_text_input_id.text)
 
 
-# Create Main Menu Screen
+# Screen with USERS/TESTS tabs
 class MainScreen(TabbedPanel, Screen):
-
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         pass
@@ -201,11 +201,6 @@ class MainScreen(TabbedPanel, Screen):
     # Update list of users on entering the screen "List of Users"
     def on_enter(self, *args):
         self.ids.user_list_view.refresh_view()
-
-    @staticmethod
-    def go_to_user_records():
-        App.get_running_app().root.transition.direction = "left"
-        App.get_running_app().root.current = "User Records"
 
     # Delete selected user
     def delete_user(self):
@@ -223,7 +218,7 @@ class MainScreen(TabbedPanel, Screen):
 
 
 # Create a User Records List Screen
-class ScoreScreen(TabbedPanel, Screen):
+class UserRecordsScreen(TabbedPanel, Screen):
 
     # Update list of users on entering the screen "List of Users"
     def on_enter(self, *args):
@@ -367,9 +362,9 @@ class Menu(App):
     instructions = None
 
     # Screen instances
-    user_records_screen = ScoreScreen(name="User Records")
+    records_screen = UserRecordsScreen(name="User Records Screen")
     main_screen = MainScreen(name="Main Screen")
-    user_creator_screen = UserCreator(name="User Creator")
+    user_creator_screen = UserCreator(name="User Creator Screen")
 
     # Method that assigns the selected test as the current test
     def select_test(self, test_form, checkbox, value):
@@ -393,13 +388,11 @@ class Menu(App):
         # Check if test was selected
         if self.test is None:
             no_test_popup.open()
-            # TODO switch to test tab
             return
 
         # Remind user selection
         if not self.current_user.is_selected:
             no_user_popup.open()
-            # TODO switch to user tab
             return
 
         # User is selected
@@ -436,11 +429,11 @@ class Menu(App):
         # Create the Screen Manager
         sm = ScreenManager(transition=NoTransition())
         # TODO uncomment IntroScreen/InputDeviceIP
-        # sm.add_widget(IntroScreen(name="Intro Screen"))
-        # sm.add_widget(InputDeviceIP(name="Input Device IP Screen"))
+        # sm.add_widget(DeviceScreen(name="Intro Screen"))
+        # sm.add_widget(DeviceIPScreen(name="Input Device IP Screen"))
         sm.add_widget(MainScreen(name="Main Screen"))
-        sm.add_widget(ScoreScreen(name="User Records"))
-        sm.add_widget(UserCreator(name="User Creator"))
+        sm.add_widget(UserRecordsScreen(name="User Records Screen"))
+        sm.add_widget(UserCreator(name="User Creator Screen"))
         self.title = "DT Menu"
         return sm
 
