@@ -266,8 +266,6 @@
         Label:
 
 <MainScreen>:
-    profile_tab: profile_tab_id
-    test_tab: test_tab_id
     do_default_tab: False
 
     TabbedPanelItem:
@@ -306,7 +304,7 @@
                     text: "S"
                     color: 0,1,0,1
                     pos_hint: {"x":1,"y":1}
-                    on_release: root.start_test()
+                    on_release: app.start_test()
             Separator:
 
             GridLayout:
@@ -395,8 +393,7 @@
                     text: "S"
                     color: 0,1,0,1
                     pos_hint: {"x":1,"y":1}
-                    on_release: root.start_test()
-
+                    on_release: app.start_test()
             Separator:
 
             GridLayout:
@@ -412,7 +409,8 @@
                     id: instruction_checkbox
                     size_hint_x: None
                     width: 150
-                    state: "down"
+                    on_active: app.include_instructions(*args)
+                    # state: "down"
             Separator:
                 height: 3
             GridLayout:
@@ -426,12 +424,12 @@
                     height: 30
                 TestFormRadioButton:
                     id: form_A_button_id
-                    state: "down"
                     group: "Test Form"
                     size_hint_x: None
                     size_hint_y: None
                     width: 150
                     height: 30
+                    on_active: app.select_test('test_a', *args)
                     allow_no_selection: False
 
                 TextLabel:
@@ -447,6 +445,7 @@
                     size_hint_y: None
                     width: 150
                     height: 30
+                    on_active: app.select_test('test_b', *args)
                     allow_no_selection: False
 
                 TextLabel:
@@ -463,6 +462,7 @@
                     size_hint_y: None
                     width: 150
                     height: 30
+                    on_active: app.select_test('test_c', *args)
                     allow_no_selection: False
             Separator:
 
