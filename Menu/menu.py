@@ -14,11 +14,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.tabbedpanel import TabbedPanel
 from kivy.core.window import Window
 from datetime import datetime
-from matplotlib import pyplot as plt
-from fpdf import FPDF
-import subprocess
 import random
-import statistics
 
 # --------------------------------------------------------------------------------------      Import Custom Program Code
 from Database import user_database
@@ -26,10 +22,11 @@ from Tests.test_a import TestA
 from Tests.test_b import TestB
 from Tests.test_c import TestC
 from Tests.instructions import Instructions
-
+from Reports.pdf_report_generator import print_report_to_pdf
 
 # ---------------------------------------------------------------------------------      Used variables (not adjustable)
 no_user_popup = Popup(title="Reminder", content=Label(text="No User Selected"), size_hint=(None, None), size=(200, 100))
+no_test_popup = Popup(title="Reminder", content=Label(text="No Test Selected"), size_hint=(None, None), size=(200, 100))
 
 
 # -------------------------------------------------------------------------------------------------------      Functions
@@ -124,7 +121,7 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
-                Menu.user_records_screen.get_report()
+                print_report_to_pdf(Menu.current_user.user_id, Menu.current_user.current_score.score_id)
             return self.parent.select_with_touch(self.index, touch)
 
     # Connect selected label to its database reference and get its user's id
@@ -165,8 +162,6 @@ class MainScreen(TabbedPanel, Screen):
 
     # Update list of users on entering the screen "List of Users"
     def on_enter(self, *args):
-        for item in self.ids:
-            print(item)
         self.ids.user_list_view.refresh_view()
 
     @staticmethod
@@ -187,47 +182,6 @@ class MainScreen(TabbedPanel, Screen):
         user_database.delete_user(user_id)  # Delete the user
         Menu.current_user.is_selected = False  # No user is selected
         self.ids.user_list_view.refresh_view()  # Refresh the list of users
-
-    def start_test(self):
-
-        # Check if the user is selected
-        if Menu.current_user.is_selected:
-            App.get_running_app().stop()
-            Window.close()
-
-            # Start Test Form A
-            if self.ids.form_A_button_id.state == "down":
-                Menu.test = TestA()
-
-            # Start Test Form B
-            elif self.ids.form_B_button_id.state == "down":
-                Menu.test = TestB()
-
-            # Start Test Form C
-            elif self.ids.form_B_button_id.state == "down":
-                Menu.test = TestC()
-
-            # Set user and input device for the upcoming test
-            Menu.test.current_user = Menu.current_user
-            Menu.test.device = Menu.input_device
-
-            if self.ids.instruction_checkbox.state == "down":
-                result = Instructions().run()
-
-                if result == "Success":
-                    Menu.test.run()
-
-            else:
-                Menu.test.run()
-
-            # Reopen Menu Tab
-            reset()
-            Menu().run()
-
-        # Remind user selection
-        else:
-            no_user_popup.open()
-            self.switch_to(self.profile_tab)
 
 
 # Create a List of Users
@@ -269,151 +223,12 @@ class UserRecordsRV(RecycleView):
 
 # Create a User Records List Screen
 class UserRecords(TabbedPanel, Screen):
-    @staticmethod
-    def link_to_start_test():
-        Menu.main_screen.start_test()
 
     # Update list of users on entering the screen "List of Users"
     def on_enter(self, *args):
         self.ids.user_records_view.refresh_view()
 
-    # Create a PDF report of current test score
-    def get_report(self):
-        # Try fetching data if exists from DT User Database
-        try:
-            # Get data from User Table
-            user = user_database.select_current_user(Menu.current_user.user_id)
-
-            # Get data from Score Table
-            selected_score = user_database.select_current_score(Menu.current_user.current_score.score_id)
-
-            # Get data from Answer Table
-            # All answers for current score
-            # answers = DT_Database_V2.select_every_answer_for_current_score(current_score_rowid)
-            # Total number of specific answers
-            num_of_stimuli = user_database.number_of_stimuli(
-                Menu.current_user.current_score.score_id)
-            num_of_reactions = user_database.number_of_reactions(
-                Menu.current_user.current_score.score_id)
-            num_of_correct_answers = user_database.number_of_answers(
-                Menu.current_user.current_score.score_id, "Correct")
-            num_of_incorrect_answers = user_database.number_of_answers(
-                Menu.current_user.current_score.score_id, "Incorrect")
-            num_of_late_answers = user_database.number_of_answers(
-                Menu.current_user.current_score.score_id, "Late")
-            num_of_missed_answers = user_database.number_of_answers(
-                Menu.current_user.current_score.score_id, "Missed")
-            num_of_repetitive_answers = user_database.number_of_answers(
-                Menu.current_user.current_score.score_id, "Repeated")
-            # List of specific answers
-            correct_answers = user_database.select_specific_answers(
-                Menu.current_user.current_score.score_id, "Correct")
-            absolute_time_of_correct_answer = []
-            respond_time_of_correct_answer = []
-            for variable in correct_answers:
-                absolute_time_of_correct_answer.append(variable[4])
-                respond_time_of_correct_answer.append(variable[5])
-            incorrect_answers = user_database.select_specific_answers(
-                Menu.current_user.current_score.score_id, "Incorrect")
-            absolute_time_of_incorrect_answer = []
-            respond_time_of_incorrect_answer = []
-            for variable in incorrect_answers:
-                absolute_time_of_incorrect_answer.append(variable[4])
-                respond_time_of_incorrect_answer.append(variable[5])
-            late_answers = user_database.select_specific_answers(
-                Menu.current_user.current_score.score_id, "Late")
-            absolute_time_of_late_answer = []
-            respond_time_of_late_answer = []
-            for variable in late_answers:
-                absolute_time_of_late_answer.append(variable[4])
-                respond_time_of_late_answer.append(variable[5])
-            missed_answers = user_database.select_specific_answers(
-                Menu.current_user.current_score.score_id, "Missed")
-            absolute_time_of_missed_answer = []
-            respond_time_of_missed_answer = []
-            for variable in missed_answers:
-                absolute_time_of_missed_answer.append(variable[4])
-                respond_time_of_missed_answer.append(variable[5])
-
-            # Calculate Reaction Time Median:
-            reactions = user_database.select_every_reaction_for_current_score(
-                Menu.current_user.current_score.score_id)
-            reaction_times = []
-            for variable in reactions:
-                reaction_times.append(variable[6])
-
-            # Prevent no data error for statistics.median
-            try:
-                reaction_time_median = round(statistics.median(reaction_times), 3)
-            except statistics.StatisticsError:
-                reaction_time_median = None
-
-            # Create a plot out of the measured data
-            plt.style.use("seaborn-dark")
-            detailed_graph, ax1 = plt.subplots()
-            ax1.plot(absolute_time_of_correct_answer, respond_time_of_correct_answer, "go", markersize=2)
-            ax1.plot(absolute_time_of_incorrect_answer, respond_time_of_incorrect_answer, "ro", markersize=2)
-            ax1.plot(absolute_time_of_late_answer, respond_time_of_late_answer, "bo", markersize=2)
-            ax1.plot(absolute_time_of_missed_answer, respond_time_of_missed_answer, "ks", markersize=2)
-            # plt.show()
-            detailed_graph.savefig("Detailed_graph.png")
-            # Set Title
-            title = str(user[2]) + " " + str(user[3]) + " DETERMINATION TEST RESULTS"
-
-            # Adjust FPDF header and footer
-            class PDF(FPDF):
-                # Adjust FPDF header
-                def header(self):
-                    self.set_font("Times", "B", 20)
-
-                    # Get width of the title
-                    title_width = self.get_string_width(title) + 10
-
-                    # Center the title
-                    page_width = self.w
-                    self.set_x((page_width - title_width) / 2)
-
-                    # Insert Title
-                    self.cell(title_width, 10, title, ln=1, align="C")
-
-                # Adjust FPDF footer
-                def footer(self):
-                    self.set_y(-15)
-                    self.set_font("Times", "I", 10)
-                    # Add page number:
-                    self.cell(0, 10, txt=f"Page {self.page_no()}/{{nb}}", align='C')
-
-            # Create pdf "report" output for selected score
-            report_pdf = PDF("P", "mm", "A4")
-            report_pdf.add_page()
-            report_pdf.set_font("Times", size=15)
-
-            # Print data onto the report
-            report_pdf.cell(0, 10, txt="Participant:" + " " + str(user[2]) + " " + str(user[3]), ln=1, align='C')
-            report_pdf.cell(0, 10, txt="Test Form:" + " " + str(selected_score[2]), ln=1, align='C')
-            report_pdf.cell(0, 10, txt="Date:" + " " + str(selected_score[3]), ln=1, align='C')
-            report_pdf.cell(0, 10, txt="", ln=1, align='C')
-            report_pdf.cell(0, 10, txt="Number of stimuli: " + str(num_of_stimuli), ln=1, align='C')
-            report_pdf.cell(0, 10, txt="Number of reactions: " + str(num_of_reactions), ln=1, align='C')
-            report_pdf.cell(0, 10, txt="Correct answers: " + str(num_of_correct_answers), ln=1, align='C')
-            report_pdf.cell(0, 10, txt="Incorrect answers: " + str(num_of_incorrect_answers), ln=1, align='C')
-            report_pdf.cell(0, 10, txt="Late answers: " + str(num_of_late_answers), ln=1, align='C')
-            report_pdf.cell(0, 10, txt="Missed answers: " + str(num_of_missed_answers), ln=1, align='C')
-            report_pdf.cell(0,
-                            10,
-                            txt="Number of repetitive answers: " + str(num_of_repetitive_answers),
-                            ln=1,
-                            align='C')
-            report_pdf.cell(0, 10, txt="Reaction Time Median: " + str(reaction_time_median) + " ms", ln=1, align='C')
-
-            report_pdf.image("Detailed_graph.png", x=10, w=report_pdf.w - 20)
-
-            # Generate a PDF file and open it
-            report_pdf.output(f"DT report-{user[2]} {user[3]}-{selected_score[1]}.pdf", dest="F")
-            subprocess.Popen([f"DT report-{user[2]} {user[3]}-{selected_score[1]}.pdf"], shell=True)
-        except TypeError and PermissionError:
-            pass
-
+    # Method that deletes selected score
     def delete_score(self):
         score_id = Menu.current_user.current_score.score_id
         user_database.delete_answers(score_id)
@@ -506,7 +321,6 @@ class Score:
 class User:
     def __init__(self, user_id=None, first_name=None, surname=None, age=None, profession=None, nationality=None,
                  is_selected=False):
-
         self.user_id = user_id
         self.first_name = first_name
         self.surname = surname
@@ -532,7 +346,14 @@ class Device:
         self.device_ip = None
 
 
-# -------------------------------------------------------------------------------      Define the main application class
+# Class that holds all the Test options
+class Tests:
+    test_a = TestA
+    test_b = TestB
+    test_c = TestC
+
+
+# ------------------------------------------------------------------------------------------      Main application class
 class Menu(App):
     # Selected user, who is being modified
     current_user = User(None)
@@ -542,19 +363,79 @@ class Menu(App):
 
     # Selected test form
     test = None
+    instructions = None
 
     # Screen instances
     user_records_screen = UserRecords(name="User Records")
     main_screen = MainScreen(name="Main Screen")
     user_creator_screen = UserCreator(name="User Creator")
 
+    # Method that assigns the selected test as the current test
+    def select_test(self, test_form, checkbox, value):
+        _ = checkbox  # Throw away unused argument passed by the pressed radio button
+        if value:
+            self.test = (getattr(Tests, test_form))()
+        else:
+            self.test = None
+
+    # Method that is called when start button is pressed -> starts the instructions before the selected test
+    def include_instructions(self, checkbox, value):
+        _ = checkbox  # Throw away unused argument passed by the pressed radio button
+        if value:
+            self.instructions = Instructions()
+        else:
+            self.instructions = None
+
+    # Method that is called when start button is pressed -> starts the selected test
+    def start_test(self):
+        # Check if test was selected
+        if self.test is None:
+            no_test_popup.open()
+            # TODO switch to test tab
+            return
+
+        # Remind user selection
+        if not self.current_user.is_selected:
+            no_user_popup.open()
+            # TODO switch to user tab
+            return
+
+        # User is selected
+
+        App.get_running_app().stop()
+        Window.close()
+
+        # Set user and input device for the upcoming test
+        self.test.current_user = self.current_user
+        self.test.device = self.input_device
+
+        # If user included instructions start instructions first
+        if self.instructions is not None:
+            result = self.instructions.run()
+
+            # Start the test if the user passed the instructions
+            if result == "Success":
+                self.test.run()
+
+            # Repeat starting the test process if the user didn't pass the instructions
+            else:
+                self.start_test()
+
+        else:
+            self.test.run()
+
+        # Reopen Menu Tab
+        reset()
+        Menu().run()
+
     def build(self):
         Window.size = (500, 750)
         Window.clearcolor = (40 / 255, 93 / 255, 191 / 255, 0.6)
         # Create the Screen Manager
         sm = ScreenManager(transition=NoTransition())
-        sm.add_widget(IntroScreen(name="Intro Screen"))
-        sm.add_widget(InputDeviceIP(name="Input Device IP Screen"))
+        # TODO uncomment IntroScreen/InputDeviceIP
+        # sm.add_widget(IntroScreen(name="Intro Screen"))
+        # sm.add_widget(InputDeviceIP(name="Input Device IP Screen"))
         sm.add_widget(MainScreen(name="Main Screen"))
         sm.add_widget(UserRecords(name="User Records"))
         sm.add_widget(UserCreator(name="User Creator"))
