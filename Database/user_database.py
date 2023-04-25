@@ -73,6 +73,13 @@ def create_answer_table():
     conn.close()
 
 
+# Function that creates all tables or connects to the existing ones
+def connect():
+    create_user_table()
+    create_score_table()
+    create_answer_table()
+
+
 # ---------------------------------------------------------------------------------------------------  Insert Functions:
 def insert_into_answer_table(question, answer, answer_type, absolute_time, relative_time, score_id):
     if isinstance(score_id, int):

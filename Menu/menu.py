@@ -85,7 +85,7 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
                 App.get_running_app().root.transition.direction = "left"
-                App.get_running_app().root.current = "User Records"
+                App.get_running_app().root.current = "User Records Screen"
             return self.parent.select_with_touch(self.index, touch)
 
     # Connect selected label to its database reference and get its user's id
@@ -110,9 +110,7 @@ class UsersRV(RecycleView):
         super(UsersRV, self).__init__(**kwargs)
 
     def refresh_view(self):
-        user_database.create_user_table()
-        user_database.create_score_table()
-        user_database.create_answer_table()
+        user_database.connect()
         user_database.select_all_users()
         user_records = user_database.select_all_users()
 
@@ -165,9 +163,7 @@ class ScoreRV(RecycleView):
         super(ScoreRV, self).__init__(**kwargs)
 
     def refresh_view(self):
-        user_database.create_user_table()
-        user_database.create_score_table()
-        user_database.create_answer_table()
+        user_database.connect()
         user_database.select_all_users()
         score_records = user_database.select_every_score_for_current_user(Menu.current_user.user_id)
 
