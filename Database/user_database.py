@@ -1,23 +1,19 @@
 import sqlite3
 import os
 
-# ----------------------          Adjustable parameters         --------------------------------------------------------
-database_name = "user_database.db"                       # Choose your Database file to store user's data (*.db file)
-
-# ----------------------      Used variables (not adjustable)      -----------------------------------------------------
-user_records = []
-user_total = 0
+# ----------------------------------------------------------------------------------------------  Adjustable parameters:
+database_name = "user_database.db"  # Choose your Database file to store user's data (*.db file)
 
 
-# -------------------------------------------------------------------------------------------   Connect to the Database:
+# --------------------------------------------------------------------------------------------  Connect to the Database:
 # Create a function to connect to User Database
 def connect_to_user_db():
     # Specify the location where to save the .db file
-    project_dir = os.path.join(os.getcwd(), os.pardir)                         # Get the parent of the current directory
-    database_dir = f'{project_dir}/Database/'                                           # Path to the database directory
+    project_dir = os.path.join(os.getcwd(), os.pardir)  # Get the parent of the current directory
+    database_dir = f'{project_dir}/Database/'  # Path to the database directory
 
     # Connect or create connection to User Database
-    conn = sqlite3.connect(f'{database_dir}{database_name}')       # Database '.db' is located in the Database directory
+    conn = sqlite3.connect(f'{database_dir}{database_name}')  # Database '.db' is located in the Database directory
     return conn
 
 
@@ -35,6 +31,7 @@ def create_user_table():
                 Profession TEXT, 
                 Nationality TEXT
                 )""")
+
     conn.commit()
     conn.close()
 
@@ -76,26 +73,27 @@ def create_answer_table():
     conn.close()
 
 
-# --------------------------------------------------------------------------------------------------   Insert Functions:
-def insert_into_answer_table(question, answer, answer_type, absolute_time, relative_time, score_id):
-    conn = connect_to_user_db()
-    c = conn.cursor()
+# Function that creates all tables or connects to the existing ones
+def connect():
+    create_user_table()
+    create_score_table()
+    create_answer_table()
 
-    c.execute("""INSERT INTO AnswerTable(
-                Question,
-                Answer,
-                AnswerType, 
-                AbsoluteTime,
-                RelativeTime,
-                ScoreID) VALUES (?, ?, ?, ?, ?, ?)""", (question,
-                                                        answer,
-                                                        answer_type,
-                                                        absolute_time,
-                                                        relative_time,
-                                                        score_id))
-    conn.commit()
-    conn.close()
-    return answer_type
+
+# ---------------------------------------------------------------------------------------------------  Insert Functions:
+def insert_into_answer_table(question, answer, answer_type, absolute_time, relative_time, score_id):
+    if isinstance(score_id, int):
+        conn = connect_to_user_db()
+        c = conn.cursor()
+
+        c.execute("""INSERT INTO AnswerTable(Question, Answer, AnswerType, AbsoluteTime, RelativeTime, ScoreID)
+         VALUES (?, ?, ?, ?, ?, ?)""", (question, answer, answer_type, absolute_time, relative_time, score_id))
+
+        conn.commit()
+        conn.close()
+        return answer_type
+    else:
+        return
 
 
 # Insert values into table
@@ -103,47 +101,43 @@ def insert_into_user_table(firstname, surname, age, profession, nationality):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("""INSERT INTO UserTable (
-                Firstname, 
-                Surname, 
-                Age, 
-                Profession, 
-                Nationality) VALUES (?, ?, ?, ?, ?)""", (firstname, surname, age, profession, nationality))
+    c.execute("""INSERT INTO UserTable (Firstname, Surname, Age, Profession, Nationality)
+     VALUES (?, ?, ?, ?, ?)""", (firstname, surname, age, profession, nationality))
+
     conn.commit()
     conn.close()
 
 
 def insert_into_score_table(test_form, date, user_id):
-    conn = connect_to_user_db()
-    c = conn.cursor()
+    if isinstance(user_id, int):
+        conn = connect_to_user_db()
+        c = conn.cursor()
 
-    c.execute("""INSERT INTO ScoreTable (TestForm, Date, UserID) VALUES (?, ?, ?)""", (test_form, date, user_id))
-    conn.commit()
-    conn.close()
-    return c.lastrowid
+        c.execute("""INSERT INTO ScoreTable (TestForm, Date, UserID) VALUES (?, ?, ?)""", (test_form, date, user_id))
+
+        conn.commit()
+        conn.close()
+        return c.lastrowid
+    else:
+        return
 
 
 def update_answer(question, answer, answer_type, absolute_time, relative_time, answer_id):
-    conn = connect_to_user_db()
-    c = conn.cursor()
+    if isinstance(answer_id, int):
+        conn = connect_to_user_db()
+        c = conn.cursor()
 
-    c.execute("""UPDATE AnswerTable SET question = ?,
-              Answer = ?,
-              AnswerType = ?,
-              AbsoluteTime = ?,
-              RelativeTime = ? WHERE rowid= ? """, (
-        question,
-        answer,
-        answer_type,
-        absolute_time,
-        relative_time,
-        answer_id)
-              )
-    conn.commit()
-    conn.close()
+        c.execute("""UPDATE AnswerTable SET question = ?, Answer = ?, AnswerType = ?, AbsoluteTime = ?, RelativeTime = ? 
+        WHERE rowid= ?""", (question, answer, answer_type, absolute_time, relative_time, answer_id))
+
+        conn.commit()
+        conn.close()
+        return answer_type
+    else:
+        return
 
 
-# --------------------------------------------------------------------------------------------------   Select Functions:
+# ---------------------------------------------------------------------------------------------------  Select Functions:
 # Select all from the User Table
 def select_all_users():
     conn = connect_to_user_db()
@@ -151,170 +145,186 @@ def select_all_users():
 
     c.execute("SELECT rowid, * FROM UserTable")
     users = c.fetchall()
+
     conn.commit()
     conn.close()
     return users
 
 
-# Select current user from User Table
-
-def select_current_user(user_index):
+# Select all from the User Table
+def select_every_score():
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM UserTable WHERE rowid=?", (user_index,))
+    c.execute("SELECT rowid, * FROM ScoreTable")
+    scores = c.fetchall()
+
+    conn.commit()
+    conn.close()
+    return scores
+
+
+# Select all from the User Table
+def select_every_answer():
+    conn = connect_to_user_db()
+    c = conn.cursor()
+
+    c.execute("SELECT rowid, * FROM AnswerTable")
+    answers = c.fetchall()
+
+    conn.commit()
+    conn.close()
+    return answers
+
+
+# Select current user from User Table
+def select_current_user(user_id):
+    conn = connect_to_user_db()
+    c = conn.cursor()
+
+    c.execute("SELECT rowid, * FROM UserTable WHERE rowid=?", (user_id,))
     current_user = c.fetchone()
+
     conn.commit()
     conn.close()
     return current_user
 
 
 # Select score of current user
-def select_every_score_for_current_user(user_index):
+def select_every_score_for_current_user(user_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM ScoreTable WHERE UserID=?", (user_index,))
+    c.execute("SELECT rowid, * FROM ScoreTable WHERE UserID=?", (user_id,))
     current_user_score = c.fetchall()
+
     conn.commit()
     conn.close()
     return current_user_score
 
 
-def select_current_score(current_score_rowid):
+def select_current_score(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM ScoreTable WHERE CustomScoreID=?", (current_score_rowid,))
+    c.execute("SELECT rowid, * FROM ScoreTable WHERE CustomScoreID=?", (score_id,))
     selected_score = c.fetchone()
+
     conn.commit()
     conn.close()
     return selected_score
 
 
 # Select all answers of current score
-def select_every_answer_for_current_score(current_score_id):
+def select_every_answer_for_current_score(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT rowid, * FROM AnswerTable WHERE ScoreID=?", (current_score_id,))
+    c.execute("SELECT rowid, * FROM AnswerTable WHERE ScoreID=?", (score_id,))
     current_user_score = c.fetchall()
+
     conn.commit()
     conn.close()
     return current_user_score
 
 
 # Select all reactions of current score
-def select_every_reaction_for_current_score(current_score_id):
+def select_every_reaction_for_current_score(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
     c.execute("""
-    SELECT rowid, * FROM AnswerTable WHERE ScoreID=? AND NOT AnswerType = "Missed" """, (current_score_id,))
+    SELECT rowid, * FROM AnswerTable WHERE ScoreID=? AND NOT AnswerType = "Missed" """, (score_id,))
     current_reactions = c.fetchall()
+
     conn.commit()
     conn.close()
     return current_reactions
 
 
-def select_specific_answers(current_score_id, answer_type):
+def select_specific_answers(score_id, answer_type):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("SELECT * FROM AnswerTable WHERE ScoreID=? AND AnswerType = ?", (current_score_id, answer_type))
+    c.execute("SELECT * FROM AnswerTable WHERE ScoreID=? AND AnswerType = ?", (score_id, answer_type))
     selected_answers = c.fetchall()
+
     conn.commit()
     conn.close()
     return selected_answers
 
 
-'''
-# Select every score in the database
-def select_every_score():
-
-    connect_to_user_db()
-    c.execute("SELECT rowid, * FROM ScoreTable")
-    scores = c.fetchall()
-    conn.commit()
-    conn.close()
-    return scores
-'''
-
-
-# --------------------------------------------------------------------------------------------------   Delete Functions:
+# ---------------------------------------------------------------------------------------------------  Delete Functions:
 # Delete selected user from User Table
-def delete_user(current_user_rowid, current_score_rowid):
+def delete_user(user_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("DELETE FROM UserTable WHERE rowid=?", (current_user_rowid,))
-    c.execute("DELETE FROM ScoreTable WHERE UserID=?", (current_user_rowid,))
-    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (current_score_rowid,))
+    c.execute("DELETE FROM UserTable WHERE rowid=?", (user_id,))
+
     conn.commit()
     conn.close()
 
 
 # Delete selected user from User Table
-def delete_score(current_score_rowid):
+def delete_score(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("DELETE FROM ScoreTable WHERE rowid=?", (current_score_rowid,))
-    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (current_score_rowid,))
+    c.execute("DELETE FROM ScoreTable WHERE rowid=?", (score_id,))
+
     conn.commit()
     conn.close()
 
 
-def delete_answer(current_question_index):
+def delete_answers(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (current_question_index,))
+    c.execute("DELETE FROM AnswerTable WHERE ScoreId=?", (score_id,))
+
     conn.commit()
     conn.close()
 
 
-# --------------------------------------------------------------------------------------   Calculate measured variables:
+# ---------------------------------------------------------------------------------------  Calculate measured variables:
 # Calculate the number of all stimuli
-def number_of_stimuli(current_score_rowid):
+def number_of_stimuli(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute("""SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? """, (current_score_rowid,))
+    c.execute("""SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? """, (score_id,))
     num_of_stimuli = c.fetchone()[0]
+
     conn.commit()
     conn.close()
     return num_of_stimuli
 
 
 # Calculate the number of all reactions
-def number_of_reactions(current_score_rowid):
+def number_of_reactions(score_id):
     conn = connect_to_user_db()
     c = conn.cursor()
 
-    c.execute(
-        """SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? AND NOT AnswerType = "Missed" """,
-        (current_score_rowid,)
-    )
+    c.execute("""SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? AND NOT AnswerType = "Missed" """, (score_id,))
     num_of_stimuli = c.fetchone()[0]
+
     conn.commit()
     conn.close()
     return num_of_stimuli
 
 
 # Calculate the number of all chosen answers
-def number_of_answers(current_score_rowid, answer_type):
+def number_of_answers(score_id, answer_type):
     conn = connect_to_user_db()
     c = conn.cursor()
 
     c.execute(
         """SELECT COUNT(*) FROM AnswerTable WHERE ScoreID = ? AND AnswerType = ? """,
-        (current_score_rowid, answer_type)
+        (score_id, answer_type)
     )
     num_of_answers = c.fetchone()[0]
+
     conn.commit()
     conn.close()
     return num_of_answers
-
-
-connect_to_user_db()

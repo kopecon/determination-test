@@ -51,9 +51,10 @@
 
 <UserSelectableLabel>:
     orientation: "horizontal"
-    label_0: ''
-    label_1: ''
-    label_2: ''
+    order: ''
+    firstname: ''
+    surname: ''
+    user_id: ''
 
     canvas.before:
         Color:
@@ -66,20 +67,26 @@
         font_size: 15
         color: 1,1,1,1
         halign: "center"
-        size_hint_x: 0.3
-        text: root.label_0
+        size_hint_x: 0.1
+        text: root.order
     TextLabel:
         font_size: 15
         color: 1,1,1,1
         halign: "center"
-        size_hint_x: 0.3
-        text: root.label_1
+        size_hint_x: 0.4
+        text: root.firstname
     TextLabel:
         font_size: 15
         color: 1,1,1,1
         halign: "center"
-        size_hint_x: 0.3
-        text: root.label_2
+        size_hint_x: 0.4
+        text: root.surname
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.2
+        text: root.user_id
 
 <ScoreSelectableLabel>:
     orientation: "horizontal"
@@ -125,7 +132,7 @@
         orientation: 'vertical'
 
 
-<UserRecordsRV>:
+<ScoreRV>:
     viewclass: 'ScoreSelectableLabel'
     SelectableRecycleBoxLayout:
         # padding: 10
@@ -204,13 +211,13 @@
             Button:
                 id: Keyboard_button_id
                 background_normal: "Style/Icons/Keyboard_custom.png"
-                on_press: root.select_input_device("Keyboard")
+                on_press: root.select_input_device("KEYBOARD")
                 on_press: root.manager.transition.direction = "left"
                 on_press: root.manager.current = "Main Screen"
             Button:
                 id: Control_panel_id
                 background_normal: "Style/Icons/Control_panel_custom.png"
-                on_press: root.select_input_device("Control panel")
+                on_press: root.select_input_device("CONTROL PANEL")
                 on_press: root.manager.transition.direction = "left"
                 on_press: root.manager.current = "Input Device IP Screen"
 
@@ -259,12 +266,10 @@
         Label:
 
 <MainScreen>:
-    profile_tab: profile_tab_id
-    test_tab: test_tab_id
     do_default_tab: False
 
     TabbedPanelItem:
-        id: profile_tab_id
+        id: users_tab
         border: [0, 0, 0, 1]
         text: "USERS"
         font_name: "Montserrat-SemiBold"
@@ -299,26 +304,31 @@
                     text: "S"
                     color: 0,1,0,1
                     pos_hint: {"x":1,"y":1}
-                    on_release: root.start_test()
+                    on_release: app.start_test()
             Separator:
 
             GridLayout:
-                cols: 3
+                cols: 4
                 rows: 1
                 size_hint_y: None
                 height: self.minimum_height
                 TextLabel:
                     halign: "center"
-                    size_hint_x: 0.3
-                    text: 'ID'
+                    size_hint_x: 0.1
+                    text: ''
+
                 TextLabel:
                     halign: "center"
-                    size_hint_x: 0.3
-                    text: 'Firstname'
+                    size_hint_x: 0.4
+                    text: 'First name'
                 TextLabel:
                     halign: "center"
-                    size_hint_x: 0.3
+                    size_hint_x: 0.4
                     text: 'Surname'
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.2
+                    text: 'ID'
 
             Separator:
                 height: 3
@@ -336,7 +346,7 @@
                     size_hint: (0.2, 0.5)
                     pos_hint: ({"x":0.4})
                     on_press: root.manager.transition.direction = "left"
-                    on_press: root.manager.current = "User Creator"
+                    on_press: root.manager.current = "User Creator Screen"
 
                 Button:
                     background_normal: "Style/Icons/Bin.png"
@@ -348,16 +358,13 @@
                 size_hint: (1,0.2)
 
     TabbedPanelItem:
-        id: test_tab_id
-        text: "TEST"
+        id: tests_tab
+        text: "TESTS"
         font_name: "Montserrat-SemiBold"
         color: 0,0,0,1
         strip_border: True
         background_down: "Style/Icons/Tab_background_down.png"
         background_normal: "Style/Icons/Tab_background_normal.png"
-        form_A_button_id : form_A_button_id
-        form_B_button_id : form_B_button_id
-        form_C_button_id : form_C_button_id
         BoxLayout:
             orientation: "vertical"
             padding: 50
@@ -386,8 +393,7 @@
                     text: "S"
                     color: 0,1,0,1
                     pos_hint: {"x":1,"y":1}
-                    on_release: root.start_test()
-
+                    on_release: app.start_test()
             Separator:
 
             GridLayout:
@@ -403,7 +409,8 @@
                     id: instruction_checkbox
                     size_hint_x: None
                     width: 150
-                    state: "down"
+                    on_active: app.include_instructions(*args)
+                    # state: "down"
             Separator:
                 height: 3
             GridLayout:
@@ -417,12 +424,12 @@
                     height: 30
                 TestFormRadioButton:
                     id: form_A_button_id
-                    state: "down"
                     group: "Test Form"
                     size_hint_x: None
                     size_hint_y: None
                     width: 150
                     height: 30
+                    on_active: app.select_test('test_a', *args)
                     allow_no_selection: False
 
                 TextLabel:
@@ -438,6 +445,7 @@
                     size_hint_y: None
                     width: 150
                     height: 30
+                    on_active: app.select_test('test_b', *args)
                     allow_no_selection: False
 
                 TextLabel:
@@ -454,10 +462,11 @@
                     size_hint_y: None
                     width: 150
                     height: 30
+                    on_active: app.select_test('test_c', *args)
                     allow_no_selection: False
             Separator:
 
-<UserRecords>
+<UserRecordsScreen>
     do_default_tab: False
     TabbedPanelItem:
         id: score_tab_id
@@ -511,7 +520,7 @@
                     size_hint_x: 0.3
                     text: 'Date'
 
-            UserRecordsRV:
+            ScoreRV:
                 id: user_records_view
                 spacing: 10
                 # size_hint: (1, None)
@@ -522,7 +531,7 @@
                 background_normal: "Style/Icons/Bin.png"
                 size_hint: (0.2, 0.2)
                 pos_hint: ({"x":0.4})
-                on_press: root.delete_record()
+                on_press: root.delete_score()
 
 <UserCreator>
     do_default_tab: False
@@ -568,10 +577,10 @@
                     spacing: 20
 
                     TextLabel:
-                        text: "First Name: "
+                        text: "First name: "
                         size_hint:(0.5, 1)
                     CustomTextInput:
-                        id: firstname_input
+                        id: first_name_input
                         multiline: False
 
                     TextLabel:
