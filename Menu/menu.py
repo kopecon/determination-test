@@ -55,7 +55,7 @@ LabelBase.register(name='Montserrat-SemiBold',
 Builder.load_file("Style/menu_layout.kv")
 
 
-# ------------------------------------------------------------------------------------------------------  Define Classes
+# -------------------------------------------------------------------------------------------------------------  Classes
 
 # Setup Classes for Recycle View by Kivy:
 # https://kivy.org/doc/stable/api-kivy.uix.recycleview.html?highlight=recycle%20view#module-kivy.uix.recycleview
@@ -66,7 +66,7 @@ class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, Recycle
     pass
 
 
-# Process the selecting of a label representing the specific user
+# Class that gives selectable option to user labels
 class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
     index = None
     selected = BooleanProperty(False)
@@ -77,34 +77,31 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
         self.index = index
         return super(UserSelectableLabel, self).refresh_view_attrs(rv, index, data)
 
-    # Check for pressing label
     def on_touch_down(self, touch):
         if super(UserSelectableLabel, self).on_touch_down(touch):
             return True
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
+                # Redirect user to the "User Records Screen"
                 App.get_running_app().root.transition.direction = "left"
                 App.get_running_app().root.current = "User Records Screen"
             return self.parent.select_with_touch(self.index, touch)
 
-    # Connect selected label to its database reference and get its user's id
     def apply_selection(self, rv, index, is_selected):
         self.selected = is_selected
-        if is_selected:
-            # Fetch the data of the selected user from the user database
-            selected_user = user_database.select_current_user(rv.data[index]['user_id'])
 
-            # Update the :Menu.current_user: instance
-            Menu.current_user = User(int(selected_user[0]), str(selected_user[2]), str(selected_user[3]),
-                                     int(selected_user[4]), str(selected_user[5]), str(selected_user[6]), True)
+        user_id = rv.data[index]['user_id']  # Get the id of the user based on the selected user label
+        if is_selected:
+            Menu.selected_user.is_selected = True
+            Menu.selected_user.set_user(user_id)
 
         if not is_selected:
             # Reset the :Menu.current_user: instance
-            Menu.current_user = User(None, None, None, None, None, None, False)
+            Menu.selected_user = User(None)
 
 
-# Create a List of Users
+# Create a List of User labels
 class UsersRV(RecycleView):
     def __init__(self, **kwargs):
         super(UsersRV, self).__init__(**kwargs)
@@ -120,7 +117,7 @@ class UsersRV(RecycleView):
         } for iteration, user in enumerate(user_records)]
 
 
-# Process the selecting of a label representing the specific score
+# Class that gives selectable option to score labels
 class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
     index = None
     selected = BooleanProperty(False)
@@ -131,33 +128,28 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
         self.index = index
         return super(ScoreSelectableLabel, self).refresh_view_attrs(rv, index, data)
 
-    # Check for pressing label
     def on_touch_down(self, touch):
         if super(ScoreSelectableLabel, self).on_touch_down(touch):
             return True
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
-                print_report_to_pdf(Menu.current_user.user_id, Menu.current_user.current_score.score_id)
+                print_report_to_pdf(Menu.selected_user.user_id, Menu.selected_user.selected_score.score_id)
             return self.parent.select_with_touch(self.index, touch)
 
-    # Connect selected label to its database reference and get its user's id
     def apply_selection(self, rv, index, is_selected):
         self.selected = is_selected
+        score_id = rv.data[index]['label_0']  # Get the id of the score based on the selected score label
         if is_selected:
-            # Fetch the data of the selected score from the user database
-            selected_score = user_database.select_current_score(rv.data[index]['label_0'])
-
-            # Update the :Menu.current_user.current_score: instance
-            Menu.current_user.current_score = Score(int(selected_score[4]), int(selected_score[0]),
-                                                    str(selected_score[2]), str(selected_score[3]), True)
+            Menu.selected_user.selected_score.is_selected = True
+            Menu.selected_user.selected_score.set_score(score_id)
 
         if not is_selected:
             # Reset :Menu.current_user.current_score: instance
-            Menu.current_user.current_score = Score(None, None, None, None, False)
+            Menu.selected_user.selected_score = Score(Menu.selected_user.user_id, None)
 
 
-# Create a List of User Records
+# Create a List of score labels
 class ScoreRV(RecycleView):
     def __init__(self, **kwargs):
         super(ScoreRV, self).__init__(**kwargs)
@@ -165,7 +157,7 @@ class ScoreRV(RecycleView):
     def refresh_view(self):
         user_database.connect()
         user_database.select_all_users()
-        score_records = user_database.select_every_score_for_current_user(Menu.current_user.user_id)
+        score_records = user_database.select_every_score_for_current_user(Menu.selected_user.user_id)
 
         # Extract data from "DTUserDatabase.db" to create Selectablelabels with scores in "User Records" screen
         self.data = [{'label_0': str(score[1]),
@@ -194,14 +186,14 @@ class MainScreen(TabbedPanel, Screen):
         super(MainScreen, self).__init__(**kwargs)
         pass
 
-    # Update list of users on entering the screen "List of Users"
+    # Update list of users when entering the Main Screen
     def on_enter(self, *args):
         self.ids.user_list_view.refresh_view()
 
     # Delete selected user
     def delete_user(self):
         # Get the ID of the selected user, who is going to be deleted
-        user_id = Menu.current_user.user_id
+        user_id = Menu.selected_user.user_id
 
         # Delete every score for the current user
         for score in user_database.select_every_score_for_current_user(user_id):
@@ -209,7 +201,7 @@ class MainScreen(TabbedPanel, Screen):
             user_database.delete_answers(score_id)  # Delete all the answers from the current score
             user_database.delete_score(score_id)  # Delete the current score
         user_database.delete_user(user_id)  # Delete the user
-        Menu.current_user.is_selected = False  # No user is selected
+        Menu.selected_user.is_selected = False  # No user is selected
         self.ids.user_list_view.refresh_view()  # Refresh the list of users
 
 
@@ -222,10 +214,10 @@ class UserRecordsScreen(TabbedPanel, Screen):
 
     # Method that deletes selected score
     def delete_score(self):
-        score_id = Menu.current_user.current_score.score_id
+        score_id = Menu.selected_user.selected_score.score_id
         user_database.delete_answers(score_id)
         user_database.delete_score(score_id)
-        Menu.current_user.current_score.is_selected = False
+        Menu.selected_user.selected_score.is_selected = False
         self.ids.user_records_view.refresh_view()
 
 
@@ -240,6 +232,7 @@ class UserCreator(TabbedPanel, Screen):
         self.ids.nationality_input.text = ""
 
     def create_user(self):
+        # Save data written in the input rows
         firstname = self.ids.first_name_input.text
         surname = self.ids.surname_input.text
         age = self.ids.age_input.text
@@ -258,12 +251,13 @@ class UserCreator(TabbedPanel, Screen):
         surname = str(random.randint(0, 20))
         user_database.insert_into_user_table("DUMMY", surname, "0", "None", "Uganda")
 
-    def create_dummy_score(self):
-        if Menu.current_user.is_selected:
+    @staticmethod
+    def create_dummy_score():
+        if Menu.selected_user.is_selected:
             score_id = user_database.insert_into_score_table(
                 "DUMMY SCORE",
                 datetime.now().strftime("%d/%m/%Y %H:%M"),
-                Menu.current_user.user_id
+                Menu.selected_user.user_id
             )
 
             # Generate one answer per one absolute time
@@ -284,44 +278,70 @@ class UserCreator(TabbedPanel, Screen):
                 used_time.append(absolute_time)  # Mark this absolute time as used
 
         # Remind user selection
-        elif not Menu.current_user.is_selected:
+        elif not Menu.selected_user.is_selected:
             no_user_popup.open()
-            self.manager.transition.direction = "right"
 
 
 # Class representing the score that is being modified
 class Score:
-    def __init__(self, user_id, score_id, test_form, date, is_selected):
+    def __init__(self, user_id, score_id=None):
         self.user_id = user_id
         self.score_id = score_id
-        self.test_form = test_form
-        self.date = date
-        self.is_selected = is_selected
+        self.score_data = {}
+        self.set_score(score_id)
+        self.is_selected = False
+
+    # Fetch the data for the selected score from the user database
+    def set_score(self, score_id):
+
+        score_in_db = user_database.select_current_score(score_id)  # Look for the score in user database
+
+        if score_in_db is not None:
+            self.score_id = score_in_db[0]
+            self.score_data = {'test_form': score_in_db[2], 'date': score_in_db[3]}
+        return
 
     def __repr__(self):
         score_description = f'''
         User ID: {self.user_id}
         Score ID: {self.score_id}
-        Test form: {self.test_form}
-        Date: {self.date}
-        Selected: {self.is_selected}
+        Test form: {self.score_data['test_form']}
+        Date: {self.score_data['date']}
         '''
         return score_description
 
 
 # Class representing the user that is being modified
 class User:
-    def __init__(self, user_id=None, first_name=None, surname=None, age=None, profession=None, nationality=None,
-                 is_selected=False):
-        self.user_id = user_id
-        self.first_name = first_name
-        self.surname = surname
-        self.user_name = f"{self.first_name} {self.surname}"
-        self.age = age
-        self.profession = profession
-        self.nationality = nationality
-        self.current_score = Score(None, None, None, None, False)
-        self.is_selected = is_selected
+    """
+    Current user is pulled from the "user_database.db" everytime a label in the user list is selected.
+    Users attributes are set based on the id of the user in the database matched with the id of the selected label.
+    """
+
+    def __init__(self, user_id=None):
+        self.user_id = user_id  # This is the most important attribute of the user
+        self.user_data = {}
+        self.user_name = None
+        self.set_user(user_id)
+        self.selected_score = Score(user_id, None)
+        self.is_selected = False
+
+    # Fetch the data for the current user from the user database
+    def set_user(self, user_id):
+
+        user_in_db = user_database.select_current_user(user_id)  # Look for the user in the database
+
+        # Set user data if the user is found in the database
+        if user_in_db is not None:
+            self.user_id = user_in_db[0]
+            self.user_data = {
+                'first_name': user_in_db[2],
+                'surname': user_in_db[3],
+                'age': user_in_db[4],
+                'profession': user_in_db[5],
+                'nationality': user_in_db[6]}
+            self.user_name = f"{self.user_data['first_name']} {self.user_data['surname']}"
+        return
 
     def __repr__(self):
         user_description = f'''
@@ -338,7 +358,7 @@ class Device:
         self.device_ip = None
 
 
-# Class that holds all the Test options
+# Class that holds all the Test options for easier access
 class Tests:
     test_a = TestA
     test_b = TestB
@@ -348,7 +368,7 @@ class Tests:
 # ----------------------------------------------------------------------------------------------  Main application class
 class Menu(App):
     # Selected user, who is being modified (this value is modified when the user selects any row in user tab)
-    current_user = User(None)
+    selected_user = User(None)
 
     # Used device properties
     input_device = Device()
@@ -381,23 +401,22 @@ class Menu(App):
 
     # Method that is called when start button is pressed -> starts the selected test
     def start_test(self):
-        # Check if test was selected
+        # Remind test selection
         if self.test is None:
             no_test_popup.open()
             return
 
         # Remind user selection
-        if not self.current_user.is_selected:
+        if not self.selected_user.is_selected:
             no_user_popup.open()
             return
 
-        # User is selected
-
+        # User and test is selected
         App.get_running_app().stop()
         Window.close()
 
         # Set user and input device for the upcoming test
-        self.test.current_user = self.current_user
+        self.test.selected_user = self.selected_user
         self.test.device = self.input_device
 
         # If user included instructions start instructions first
@@ -420,6 +439,7 @@ class Menu(App):
         Menu().run()
 
     def build(self):
+        # Setup window
         Window.size = (500, 750)
         Window.clearcolor = (40 / 255, 93 / 255, 191 / 255, 0.6)
         # Create the Screen Manager
@@ -435,6 +455,5 @@ class Menu(App):
 
 
 # ------------------------------------------------------------------------------------------------  Run Menu Application
-
 if __name__ == '__main__':
     Menu().run()
