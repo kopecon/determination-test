@@ -445,8 +445,8 @@ class Menu(App):
         # Create the Screen Manager
         sm = ScreenManager(transition=NoTransition())
         # TODO uncomment IntroScreen/InputDeviceIP
-        # sm.add_widget(DeviceScreen(name="Intro Screen"))
-        # sm.add_widget(DeviceIPScreen(name="Input Device IP Screen"))
+        sm.add_widget(DeviceScreen(name="Intro Screen"))
+        sm.add_widget(DeviceIPScreen(name="Input Device IP Screen"))
         sm.add_widget(MainScreen(name="Main Screen"))
         sm.add_widget(UserRecordsScreen(name="User Records Screen"))
         sm.add_widget(UserCreator(name="User Creator Screen"))
