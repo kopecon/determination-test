@@ -44,7 +44,7 @@ class TestEnvironment(ABC):
         # Current user
         self.current_user = current_user
         self.device = device
-
+        self.test_info = ""  # Description of the test that is specified for each test individually
         # Test parameters
         self.test_duration = 240000 / 20  # Test duration in ms (4 min by default)
 

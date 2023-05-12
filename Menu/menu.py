@@ -32,7 +32,7 @@ no_test_popup = Popup(title="Reminder", content=Label(text="No Test Selected"), 
 # -----------------------------------------------------------------------------------------------------------  Functions
 # Create a function that allows reopening window after closing it
 # solution by: https://stackoverflow.com/questions/68697821/can-i-close-kivy-window-and-open-it-again
-def reset():
+def _reset():
     import kivy.core.window as window
     from kivy.base import EventLoop
     if not EventLoop.event_listeners:
@@ -42,6 +42,16 @@ def reset():
         for cat in Cache._categories:
             # noinspection PyProtectedMember
             Cache._objects[cat] = {}
+
+
+def _screen_ids(screen_name: str):
+    """
+    Shortcut function that helps with getting the ids of the desired screen
+
+    :param screen_name: Name of the screen which you want to access
+    :return: ids of the accessed screen
+    """
+    return App.get_running_app().root.get_screen(screen_name).ids
 
 
 # -----------------------------------------------------------------------------------  Load a layout style form .kv file
@@ -90,8 +100,8 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
     def apply_selection(self, rv, index, is_selected):
         self.selected = is_selected
-
         user_id = rv.data[index]['user_id']  # Get the id of the user based on the selected user label
+
         if is_selected:
             Menu.selected_user.is_selected = True
             Menu.selected_user.set_user(user_id)
@@ -388,6 +398,7 @@ class Menu(App):
         if value:
             # Assign the current test based on the selected radiobutton
             self.test = (getattr(Tests, test_form))()
+            _screen_ids("Main Screen").test_info.text = self.test.test_info
         else:
             self.test = None
 
@@ -435,7 +446,7 @@ class Menu(App):
             self.test.run()
 
         # Reopen Menu Tab
-        reset()
+        _reset()
         Menu().run()
 
     def build(self):

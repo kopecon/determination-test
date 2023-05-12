@@ -10,6 +10,10 @@ from Tests.test_environment import TestEnvironment
 
 # ----------------------------------------------------------------------------------------------------------  Functions:
 class TestB(TestEnvironment):
+    def __init__(self):
+        super().__init__()
+        self.test_info = "Reactive Test"  # Test description
+
     # Printing instance of this class returns the name of this class
     def __repr__(self):
         return __class__.__name__
