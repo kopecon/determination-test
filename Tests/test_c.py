@@ -12,7 +12,10 @@ from Tests.test_environment import TestEnvironment
 class TestC(TestEnvironment):
     def __init__(self):
         super().__init__()
-        self.test_info = "Active Test"  # Test description
+        # Test description
+        self.test_info = """Active form:
+        Next stimuli is presented only after answering the previous.
+        """
 
     # Printing instance of this class returns the name of this class
     def __repr__(self):
