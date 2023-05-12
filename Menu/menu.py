@@ -444,7 +444,6 @@ class Menu(App):
         Window.clearcolor = (40 / 255, 93 / 255, 191 / 255, 0.6)
         # Create the Screen Manager
         sm = ScreenManager(transition=NoTransition())
-        # TODO uncomment IntroScreen/InputDeviceIP
         sm.add_widget(DeviceScreen(name="Intro Screen"))
         sm.add_widget(DeviceIPScreen(name="Input Device IP Screen"))
         sm.add_widget(MainScreen(name="Main Screen"))
