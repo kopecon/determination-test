@@ -103,12 +103,12 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
         user_id = rv.data[index]['user_id']  # Get the id of the user based on the selected user label
 
         if is_selected:
-            Menu.selected_user.is_selected = True
-            Menu.selected_user.set_user(user_id)
+            App.get_running_app().selected_user.is_selected = True
+            App.get_running_app().selected_user.set_user(user_id)
 
         if not is_selected:
-            # Reset the :Menu.current_user: instance
-            Menu.selected_user = User(None)
+            # Reset the :App.get_running_app().current_user: instance
+            App.get_running_app().selected_user = User(None)
 
 
 # Create a List of User labels
@@ -144,19 +144,21 @@ class ScoreSelectableLabel(RecycleDataViewBehavior, BoxLayout):
 
         if self.collide_point(*touch.pos) and self.selectable:
             if touch.is_double_tap:
-                print_report_to_pdf(Menu.selected_user.user_id, Menu.selected_user.selected_score.score_id)
+                print_report_to_pdf(App.get_running_app().selected_user.user_id,
+                                    App.get_running_app().selected_user.selected_score.score_id)
             return self.parent.select_with_touch(self.index, touch)
 
     def apply_selection(self, rv, index, is_selected):
         self.selected = is_selected
         score_id = rv.data[index]['label_0']  # Get the id of the score based on the selected score label
         if is_selected:
-            Menu.selected_user.selected_score.is_selected = True
-            Menu.selected_user.selected_score.set_score(score_id)
+            App.get_running_app().selected_user.selected_score.is_selected = True
+            App.get_running_app().selected_user.selected_score.set_score(score_id)
 
         if not is_selected:
-            # Reset :Menu.current_user.current_score: instance
-            Menu.selected_user.selected_score = Score(Menu.selected_user.user_id, None)
+            # Reset :App.get_running_app().current_user.current_score: instance
+            App.get_running_app().selected_user.selected_score = Score(
+                App.get_running_app().selected_user.user_id, None)
 
 
 # Create a List of score labels
@@ -167,7 +169,7 @@ class ScoreRV(RecycleView):
     def refresh_view(self):
         user_database.connect()
         user_database.select_all_users()
-        score_records = user_database.select_every_score_for_current_user(Menu.selected_user.user_id)
+        score_records = user_database.select_every_score_for_current_user(App.get_running_app().selected_user.user_id)
 
         # Extract data from "DTUserDatabase.db" to create Selectablelabels with scores in "User Records" screen
         self.data = [{'label_0': str(score[1]),
@@ -181,13 +183,13 @@ class DeviceScreen(Screen):
     # Find selected input device
     @staticmethod
     def select_input_device(input_device_val):
-        Menu.input_device.device_type = input_device_val
+        App.get_running_app().input_device.device_type = input_device_val
 
 
 # Create a screen where user fills in the device IP (if using the control panel)
 class DeviceIPScreen(Screen):
     def submit_ip_address(self):
-        Menu.input_device.device_ip = str(self.ids.input_device_ip_text_input_id.text)
+        App.get_running_app().input_device.device_ip = str(self.ids.input_device_ip_text_input_id.text)
 
 
 # Screen with USERS/TESTS tabs
@@ -203,7 +205,7 @@ class MainScreen(TabbedPanel, Screen):
     # Delete selected user
     def delete_user(self):
         # Get the ID of the selected user, who is going to be deleted
-        user_id = Menu.selected_user.user_id
+        user_id = App.get_running_app().selected_user.user_id
 
         # Delete every score for the current user
         for score in user_database.select_every_score_for_current_user(user_id):
@@ -211,8 +213,35 @@ class MainScreen(TabbedPanel, Screen):
             user_database.delete_answers(score_id)  # Delete all the answers from the current score
             user_database.delete_score(score_id)  # Delete the current score
         user_database.delete_user(user_id)  # Delete the user
-        Menu.selected_user.is_selected = False  # No user is selected
+        App.get_running_app().selected_user.is_selected = False  # No user is selected
         self.ids.user_list_view.refresh_view()  # Refresh the list of users
+
+
+class ConfigurationScreen(Screen):
+    test_mode = False
+    mode = f"Test Mode: {test_mode}"
+
+    def test_mode_button(self):
+        if App.get_running_app().test is not None:
+
+            self.test_mode = not self.test_mode
+            if self.test_mode:
+                self.mode = f"Test Mode: {self.test_mode}"
+            else:
+                self.mode = f"Test Mode: {self.test_mode}"
+            self.ids.test_mode_button.text = self.mode
+
+            if App.get_running_app().test.test_name == "ADAPTIVE TEST":
+                if self.test_mode:
+                    App.get_running_app().test.test_duration = 240000 / 20
+
+            elif App.get_running_app().test.test_name == "REACTIVE TEST":
+                if self.test_mode:
+                    App.get_running_app().test.number_of_stimuli = 10
+
+            elif App.get_running_app().test.test_name == "ACTIVE TEST":
+                if self.test_mode:
+                    App.get_running_app().test.number_of_stimuli = 10
 
 
 # Create a User Records List Screen
@@ -224,10 +253,10 @@ class UserRecordsScreen(TabbedPanel, Screen):
 
     # Method that deletes selected score
     def delete_score(self):
-        score_id = Menu.selected_user.selected_score.score_id
+        score_id = App.get_running_app().selected_user.selected_score.score_id
         user_database.delete_answers(score_id)
         user_database.delete_score(score_id)
-        Menu.selected_user.selected_score.is_selected = False
+        App.get_running_app().selected_user.selected_score.is_selected = False
         self.ids.user_records_view.refresh_view()
 
 
@@ -263,11 +292,11 @@ class UserCreator(TabbedPanel, Screen):
 
     @staticmethod
     def create_dummy_score():
-        if Menu.selected_user.is_selected:
+        if App.get_running_app().selected_user.is_selected:
             score_id = user_database.insert_into_score_table(
                 "DUMMY SCORE",
                 datetime.now().strftime("%d/%m/%Y %H:%M"),
-                Menu.selected_user.user_id
+                App.get_running_app().selected_user.user_id
             )
 
             # Generate one answer per one absolute time
@@ -288,7 +317,7 @@ class UserCreator(TabbedPanel, Screen):
                 used_time.append(absolute_time)  # Mark this absolute time as used
 
         # Remind user selection
-        elif not Menu.selected_user.is_selected:
+        elif not App.get_running_app().selected_user.is_selected:
             no_user_popup.open()
 
 
@@ -388,9 +417,9 @@ class Menu(App):
     instructions = None
 
     # Screen instances
-    records_screen = UserRecordsScreen(name="User Records Screen")
-    main_screen = MainScreen(name="Main Screen")
-    user_creator_screen = UserCreator(name="User Creator Screen")
+    # records_screen = UserRecordsScreen(name="User Records Screen")
+    # main_screen = MainScreen(name="Main Screen")
+    # user_creator_screen = UserCreator(name="User Creator Screen")
 
     # Method that assigns the selected test as the current test
     def select_test(self, test_form, checkbox, value):
@@ -399,6 +428,7 @@ class Menu(App):
             # Assign the current test based on the selected radiobutton
             self.test = (getattr(Tests, test_form))()
             _screen_ids("Main Screen").test_info.text = self.test.test_info
+            _screen_ids("Configuration Screen").config_test_name.text = self.test.test_name
         else:
             self.test = None
 
@@ -460,6 +490,7 @@ class Menu(App):
         sm.add_widget(MainScreen(name="Main Screen"))
         sm.add_widget(UserRecordsScreen(name="User Records Screen"))
         sm.add_widget(UserCreator(name="User Creator Screen"))
+        sm.add_widget(ConfigurationScreen(name="Configuration Screen"))
         self.title = "DT Menu"
         return sm
 

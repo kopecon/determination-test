@@ -13,9 +13,11 @@ class TestC(TestEnvironment):
     def __init__(self):
         super().__init__()
         # Test description
+        self.test_name = "ACTIVE TEST"
         self.test_info = """Active form:
         Next stimuli is presented only after answering the previous.
         """
+        self.number_of_stimuli = len(question_set.question_set)
 
     # Printing instance of this class returns the name of this class
     def __repr__(self):
@@ -127,7 +129,7 @@ class TestC(TestEnvironment):
                             )
 
                         # Next stimulus
-                        if stimulus_index < len(question_set.question_set) - 1:
+                        if stimulus_index < self.number_of_stimuli - 1:
                             stimulus_index += 1
 
                         # Finish test after stimuli runs out

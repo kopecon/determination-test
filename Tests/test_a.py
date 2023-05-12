@@ -15,9 +15,11 @@ class TestA(TestEnvironment):
     def __init__(self):
         super().__init__()
         # Test description
+        self.test_name = "ADAPTIVE TEST"
         self.test_info = """Adaptive form:
         The speed of which the stimuli are being presented is adjusted during the test based on the performance.
         """
+        self.test_duration = 240000  # Test duration in ms (4 min by default)
 
     # Printing instance of this class returns the name of this class
     def __repr__(self):
@@ -34,7 +36,6 @@ class TestA(TestEnvironment):
         pygame.display.set_caption(f"DT Test Form: {test_form}")
 
         # Declare test specific variables
-        test_duration = 240000 / 20  # Test duration in ms (4 min by default)
         epoch_time = 0
         previous_stimulus_time_ms = 0
         reset_respond_time_ms = 0
@@ -73,7 +74,7 @@ class TestA(TestEnvironment):
             stimulus_adaptive_delay_ms = statistics.mean(last_8_responses)
 
             # Finish test after time runs out
-            if current_script_time_ms >= test_duration and stimulus_time == 0 and flip:
+            if current_script_time_ms >= self.test_duration and stimulus_time == 0 and flip:
                 flip = False
 
                 self.main_window.fill(self.color_scheme['GRAY'])
@@ -275,7 +276,7 @@ class TestA(TestEnvironment):
                     text_surface[1].move(self.text_pos[0], self.text_pos[1] + self.text.size * 6.25)
                 )
 
-                text_text_5 = f"Test duration:      {test_duration / 60 / 1000} min"
+                text_text_5 = f"Test duration:      {self.test_duration / 60 / 1000} min"
                 middle_text_text_5_surface = self.text.render(
                     text=text_text_5,
                     fgcolor=self.color_scheme['LIGHT_GRAY'],
