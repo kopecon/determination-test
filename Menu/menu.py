@@ -446,11 +446,15 @@ class Menu(App):
         if self.test is None:
             no_test_popup.open()
             return
+        else:
+            self.test.device = self.input_device  # Set the selected device for the upcoming test
 
         # Remind user selection
         if not self.selected_user.is_selected:
             no_user_popup.open()
             return
+        else:
+            self.test.current_user = self.selected_user  # Test answers will be recorded for the selected user
 
         # User and test is selected
         App.get_running_app().stop()
