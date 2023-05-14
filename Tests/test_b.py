@@ -27,7 +27,7 @@ class TestB(TestEnvironment):
     def run(self, phase="Instructions"):
         self.start_pygame()
 
-        test_form = "B"
+        test_form = "Reactive"
 
         # Test title
         title = f"DETERMINATION TEST - {test_form.upper()} FORM"
