@@ -29,7 +29,7 @@ class TestA(TestEnvironment):
     def run(self, phase="Instructions"):
         self.start_pygame()
 
-        test_form = "A"
+        test_form = "Adaptive"
 
         # Test title
         title = f"DETERMINATION TEST - {test_form.upper()} FORM"
@@ -189,13 +189,12 @@ class TestA(TestEnvironment):
 
                         # Repeated Answer
                         elif answered:
-
                             # Insert repeated answer in to answer table as incorrect answer
                             answer_type = user_database.insert_into_answer_table(
-                                "Repeated Input",
+                                "None",
                                 pygame.key.name(event.key),
                                 "Incorrect",
-                                current_script_time_ms / 1000 / 1000,
+                                current_script_time_ms / 1000,
                                 response_time_ns / 1000000,
                                 score_id
                             )
@@ -423,4 +422,6 @@ class TestA(TestEnvironment):
 
 
 if __name__ == '__main__':
-    TestA().run()
+    test = TestA()
+    test.test_duration = 240000 / 20
+    test.run()
