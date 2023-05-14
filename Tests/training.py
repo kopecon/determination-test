@@ -8,6 +8,10 @@ from Tests.test_environment import TestEnvironment
 
 # ----------------------------------------------------------------------------------------------------------  Functions:
 class Training(TestEnvironment):
+    def __init__(self):
+        super().__init__()
+        self.number_of_stimuli = len(question_set.training_question_set)
+
     # Printing instance of this class returns the name of this class
     def __repr__(self):
         return __class__.__name__
@@ -170,7 +174,7 @@ class Training(TestEnvironment):
                 )
 
                 text_text_5 = f'''Training duration: {
-                len(question_set.training_question_set) * stimulus_delay_time / 60 / 1000
+                self.number_of_stimuli * stimulus_delay_time / 60 / 1000
                 } min'''
                 middle_text_text_5_surface = self.text.render(
                     text=text_text_5,
@@ -226,7 +230,7 @@ class Training(TestEnvironment):
                     pygame.event.clear()
 
                     # Next stimulus or finish test if ran out of stimulus
-                    if stimulus_index < len(question_set.training_question_set) - 1 - 22:
+                    if stimulus_index < self.number_of_stimuli - 1:
                         stimulus_index += 1
                         # Change circle position
                         circle_position = self.random_circle_position()
