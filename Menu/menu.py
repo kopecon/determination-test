@@ -367,7 +367,7 @@ class User:
 
     # Fetch the data for the current user from the user database
     def set_user(self, user_id):
-
+        user_database.connect()
         user_in_db = user_database.select_current_user(user_id)  # Look for the user in the database
 
         # Set user data if the user is found in the database
