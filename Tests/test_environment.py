@@ -10,6 +10,8 @@ import os
 # ----------------------------------------------------------------------------------------------  Import custom modules:
 from Database import user_database
 
+# Fixme Sounds stops playing after some time in adaptive test
+
 
 # ------------------------------------------------------------------------------------------------------------  Classes:
 # Abstract class defining test environments
