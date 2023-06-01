@@ -1,7 +1,9 @@
+from kivy.config import Config
+Config.set('graphics', 'resizable', False)  # Disable resizing of the window
 from kivy.app import App
 from kivy.core.text import LabelBase
 from kivy.lang import Builder
-from kivy.properties import BooleanProperty
+from kivy.properties import BooleanProperty, Clock
 from kivy.uix.behaviors import FocusBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -23,6 +25,7 @@ from Tests.test_b import TestB
 from Tests.test_c import TestC
 from Tests.instructions import Instructions
 from Reports.pdf_report_generator import print_report_to_pdf
+
 
 # ---------------------------------------------------------------------------------      Used variables (not adjustable)
 no_user_popup = Popup(title="Reminder", content=Label(text="No User Selected"), size_hint=(None, None), size=(200, 100))
@@ -62,7 +65,8 @@ LabelBase.register(name='D-DINCondensed',
 LabelBase.register(name='Montserrat-SemiBold',
                    fn_regular='Style/Fonts/Montserrat-SemiBold.ttf')
 
-Builder.load_file("Style/menu_layout.kv")
+# Builder.load_file("Style/menu_layout.kv")
+Builder.load_file("Style/new_menu_layout.kv")
 
 
 # -------------------------------------------------------------------------------------------------------------  Classes
@@ -72,7 +76,7 @@ Builder.load_file("Style/menu_layout.kv")
 
 # Create a layout with selectable labels
 class SelectableRecycleBoxLayout(FocusBehavior, LayoutSelectionBehavior, RecycleBoxLayout):
-    touch_deselect_last = BooleanProperty(True)  # FIXME allowing deselection causes issues with double touch.
+    # touch_deselect_last = BooleanProperty(True)  # FIXME allowing deselection causes issues with double touch.
     pass
 
 
@@ -95,7 +99,7 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
             if touch.is_double_tap:
                 # Redirect user to the "User Records Screen"
                 App.get_running_app().root.transition.direction = "left"
-                App.get_running_app().root.current = "User Records Screen"
+                App.get_running_app().root.current = "User Profile Screen"
             return self.parent.select_with_touch(self.index, touch)
 
     def apply_selection(self, rv, index, is_selected):
@@ -105,6 +109,7 @@ class UserSelectableLabel(RecycleDataViewBehavior, BoxLayout):
         if is_selected:
             App.get_running_app().selected_user.is_selected = True
             App.get_running_app().selected_user.set_user(user_id)
+            _screen_ids("User Selection Screen").ConfirmButton.disabled = False
 
         if not is_selected:
             # Reset the :App.get_running_app().current_user: instance
@@ -123,7 +128,7 @@ class UsersRV(RecycleView):
 
         # Extract data from "DTUserDatabase.db" to create Selectablelabels with users in "List of Users" screen
         self.data = [{
-            'order': str(iteration + 1), 'firstname': str(user[2]), 'surname': str(user[3]), 'user_id': str(user[0])
+            'order': str(iteration + 1)+'|', 'firstname': str(user[2]), 'surname': str(user[3]), 'user_id': str(user[0])
         } for iteration, user in enumerate(user_records)]
 
 
@@ -179,31 +184,58 @@ class ScoreRV(RecycleView):
 
 
 # Create the Intro screen
-class DeviceScreen(Screen):
-    # Find selected input device
-    @staticmethod
-    def select_input_device(input_device_val):
-        App.get_running_app().input_device.device_type = input_device_val
+class IntroScreen(Screen):
+    def __init__(self, **kwargs):
+        super(IntroScreen, self).__init__(**kwargs)
 
+    # Update list of users on entering the screen "List of Users"
+    def on_enter(self, *args):
+        Clock.schedule_once(self.next_screen, 1)
+        pass
 
-# Create a screen where user fills in the device IP (if using the control panel)
-class DeviceIPScreen(Screen):
-    def submit_ip_address(self):
-        App.get_running_app().input_device.device_ip = str(self.ids.input_device_ip_text_input_id.text)
+    def next_screen(self, dt):
+        _ = dt
+        self.manager.current = "User Selection Screen"
 
 
 # Screen with USERS/TESTS tabs
-class MainScreen(TabbedPanel, Screen):
+class UserSelectionScreen(Screen):
     def __init__(self, **kwargs):
-        super(MainScreen, self).__init__(**kwargs)
+        super(UserSelectionScreen, self).__init__(**kwargs)
         pass
 
-    # Update list of users when entering the Main Screen
+    # Update list of users when entering the User Selection Screen
     def on_enter(self, *args):
         self.ids.user_list_view.refresh_view()
 
+
+class UserProfileScreen(Screen):
+    def __init__(self, **kwargs):
+        super(UserProfileScreen, self).__init__(**kwargs)
+
+    # Update list of users on entering the screen "List of Users"
+    def on_enter(self, *args):
+        if App.get_running_app().selected_user.user_id is not None:
+            self.ids.ProfileTabbedPanel.ids.user_records_view.refresh_view()
+            Clock.schedule_once(self.ids.ProfileTabbedPanel.on_tab_width, 0)
+            if len(App.get_running_app().selected_user.user_data['surname']) <= 6:
+                self.ids.UserProfileTitle.text = \
+                    str(App.get_running_app().selected_user.user_data['surname']+"'s PROFILE")
+            self.ids.ProfileTabbedPanel.ids.Name.text =\
+                str(App.get_running_app().selected_user.user_name)
+            self.ids.ProfileTabbedPanel.ids.Age.text =\
+                str(App.get_running_app().selected_user.user_data['age'])
+            self.ids.ProfileTabbedPanel.ids.Profession.text =\
+                str(App.get_running_app().selected_user.user_data['profession'])
+            self.ids.ProfileTabbedPanel.ids.Nationality.text =\
+                str(App.get_running_app().selected_user.user_data['nationality'])
+
+
+# Class that represents the tabs in User Profile Screen
+class ProfileTabbedPanel(TabbedPanel):
     # Delete selected user
-    def delete_user(self):
+    @staticmethod
+    def delete_user():
         # Get the ID of the selected user, who is going to be deleted
         user_id = App.get_running_app().selected_user.user_id
 
@@ -214,42 +246,7 @@ class MainScreen(TabbedPanel, Screen):
             user_database.delete_score(score_id)  # Delete the current score
         user_database.delete_user(user_id)  # Delete the user
         App.get_running_app().selected_user.is_selected = False  # No user is selected
-        self.ids.user_list_view.refresh_view()  # Refresh the list of users
-
-
-class ConfigurationScreen(Screen):
-    test_mode = False
-    mode = f"Test Mode: {test_mode}"
-
-    def test_mode_button(self):
-        if App.get_running_app().test is not None:
-
-            self.test_mode = not self.test_mode
-            if self.test_mode:
-                self.mode = f"Test Mode: {self.test_mode}"
-            else:
-                self.mode = f"Test Mode: {self.test_mode}"
-            self.ids.test_mode_button.text = self.mode
-
-            if App.get_running_app().test.test_name == "ADAPTIVE TEST":
-                if self.test_mode:
-                    App.get_running_app().test.test_duration = 240000 / 20
-
-            elif App.get_running_app().test.test_name == "REACTIVE TEST":
-                if self.test_mode:
-                    App.get_running_app().test.number_of_stimuli = 10
-
-            elif App.get_running_app().test.test_name == "ACTIVE TEST":
-                if self.test_mode:
-                    App.get_running_app().test.number_of_stimuli = 10
-
-
-# Create a User Records List Screen
-class UserRecordsScreen(TabbedPanel, Screen):
-
-    # Update list of users on entering the screen "List of Users"
-    def on_enter(self, *args):
-        self.ids.user_records_view.refresh_view()
+        _screen_ids("User Selection Screen").user_list_view.refresh_view()
 
     # Method that deletes selected score
     def delete_score(self):
@@ -260,8 +257,65 @@ class UserRecordsScreen(TabbedPanel, Screen):
         self.ids.user_records_view.refresh_view()
 
 
+# Screen which holds the test options
+class TestScreen(Screen):
+    def __init__(self, **kwargs):
+        super(TestScreen, self).__init__(**kwargs)
+
+    # Update list of users on entering the screen "List of Users"
+    def on_enter(self, *args):
+        Clock.schedule_once(self.activate_test_form, 0)
+
+    def activate_test_form(self, dt):
+        _ = dt
+        self.ids.form_A_button_id.active = True
+
+
+# Create a screen where user fills in the device IP (if using the control panel)
+class DeviceIPScreen(Screen):
+    def submit_ip_address(self):
+        App.get_running_app().input_device.device_ip = str(self.ids.input_device_ip_text_input_id.text)
+
+
+class ConfigurationScreen(Screen):
+    test_mode = False
+    mode = f"Test Mode: {test_mode}"
+    panel_active = False
+    panel = f"Control Panel: {panel_active}"
+
+    def test_mode_button(self):
+
+        self.test_mode = not self.test_mode
+
+        if self.test_mode:
+            self.mode = f"Test Mode: {self.test_mode}"
+        else:
+            self.mode = f"Test Mode: {self.test_mode}"
+        self.ids.test_mode_button.text = self.mode
+
+        if self.test_mode:
+            App.get_running_app().test.test_duration = 240000 / 20
+
+        if self.test_mode:
+            App.get_running_app().test.number_of_stimuli = 10
+
+    def panel_button(self):
+        self.panel_active = not self.panel_active
+        self.panel = f"Control Panel: {self.panel_active}"
+        self.ids.panel_button.text = self.panel
+        if self.panel_active:
+            self.ids.panel_ip.disabled = False
+            self.ids.connect_panel_button.disabled = False
+
+    def connect_panel_button(self):
+        App.get_running_app().input_device.device_type = "CONTROL PANEL"
+        App.get_running_app().input_device.device_ip = self.ids.panel_ip.text
+
+        self.manager.current = "Test Screen"
+
+
 # Create a User Creation Screen
-class UserCreator(TabbedPanel, Screen):
+class UserCreator(Screen):
     def on_enter(self, *args):
         # Erase input fields
         self.ids.first_name_input.text = ""
@@ -319,6 +373,11 @@ class UserCreator(TabbedPanel, Screen):
         # Remind user selection
         elif not App.get_running_app().selected_user.is_selected:
             no_user_popup.open()
+
+
+class BlankScreen(Screen):
+    # This class is here only to trouble shoot issues with accessing the screen manager
+    pass
 
 
 # Class representing the score that is being modified
@@ -416,19 +475,15 @@ class Menu(App):
     test = None
     instructions = None
 
-    # Screen instances
-    # records_screen = UserRecordsScreen(name="User Records Screen")
-    # main_screen = MainScreen(name="Main Screen")
-    # user_creator_screen = UserCreator(name="User Creator Screen")
-
     # Method that assigns the selected test as the current test
     def select_test(self, test_form, checkbox, value):
         _ = checkbox  # Throw away unused argument passed by the pressed radio button
         if value:
             # Assign the current test based on the selected radiobutton
             self.test = (getattr(Tests, test_form))()
-            _screen_ids("Main Screen").test_info.text = self.test.test_info
+            _screen_ids("Test Screen").test_info.text = self.test.test_info
             _screen_ids("Configuration Screen").config_test_name.text = self.test.test_name
+            _screen_ids("Test Screen").StartTestButton.disabled = False
         else:
             self.test = None
 
@@ -486,17 +541,24 @@ class Menu(App):
     def build(self):
         # Setup window
         Window.size = (500, 750)
-        Window.clearcolor = (40 / 255, 93 / 255, 191 / 255, 0.6)
+        Window.clearcolor = (253, 253, 152, 1)
         # Create the Screen Manager
         sm = ScreenManager(transition=NoTransition())
-        sm.add_widget(DeviceScreen(name="Intro Screen"))
-        sm.add_widget(DeviceIPScreen(name="Input Device IP Screen"))
-        sm.add_widget(MainScreen(name="Main Screen"))
-        sm.add_widget(UserRecordsScreen(name="User Records Screen"))
+        sm.add_widget(BlankScreen(name="Blank Screen"))
+        sm.add_widget(UserSelectionScreen(name="User Selection Screen"))
+        sm.add_widget(IntroScreen(name="Intro Screen"))
         sm.add_widget(UserCreator(name="User Creator Screen"))
+        sm.add_widget(UserProfileScreen(name="User Profile Screen"))
+        sm.add_widget(TestScreen(name="Test Screen"))
         sm.add_widget(ConfigurationScreen(name="Configuration Screen"))
+        sm.add_widget(DeviceIPScreen(name="Input Device IP Screen"))
+        sm.current = "Intro Screen"
         self.title = "DT Menu"
         return sm
+
+    def get_screen_manager(self):
+        print(self.root)
+        return self.root
 
 
 # ------------------------------------------------------------------------------------------------  Run Menu Application

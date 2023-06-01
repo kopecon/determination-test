@@ -1,0 +1,912 @@
+#:import Factory kivy.factory.Factory
+
+<TitleLabel@Label>
+    color: 0, 0, 0, 1
+    font_name: "D-DINCondensed"
+    font_size: 30
+    halign: "center"
+    valign: "center"
+    text_size: self.size
+
+<TextLabel@Label>
+    color: 0, 0, 0, 1
+    font_name: "Montserrat-SemiBold"
+    font_size: 20
+    halign: "left"
+    valign: "center"
+    text_size: self.size
+<TestFormRadioButton@CheckBox>
+    color: 0,0,0,1
+
+<BackButton@Button>
+    background_normal: ""
+    color: 0, 0, 0, 1
+    font_size: 30
+    size_hint: None,None
+    width: 50
+    height: 50
+    Image:
+        size_hint: (None, None)
+        size: (50, 50)
+        source: "Style/Icons/back.jpg"
+        center_x: self.parent.center_x
+        center_y: self.parent.center_y
+
+
+
+<DeleteButton@Button>:
+    background_normal: "Style/Icons/Bin.png"
+    size_hint: (None, None)
+    width: 100
+    height: 100
+    pos_hint: ({"x":0.4})
+
+<Separator@Label>
+    size_hint_y: None
+    height: 5
+    canvas.before:
+        Color:
+            rgba: 0,0,0,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<CustomTextInput@TextInput>
+    background_normal: ""
+    background_color: 0.6,0.6,0.6,0.6
+
+<Tab@TabbedPanelItem>
+    size_hint_x: None
+    width: self.texture_size[0]
+    font_name: "Montserrat-SemiBold"
+    color: (33/255, 102/255, 177/255, 255/255) if self.state == "down" else (0,0,0,1)
+    padding: 10, 0
+    border: [0, 0, 0, 1]
+    background_down: "Style/Icons/Tab_background_down.png"
+    background_normal: "Style/Icons/Tab_background_down.png"
+
+<UserSelectableLabel>:
+    orientation: "horizontal"
+    order: ''
+    firstname: ''
+    surname: ''
+    user_id: ''
+
+    canvas.before:
+        Color:
+            rgba: (40/255, 93/255, 191/255,0.6) if self.selected else (0.2, 0.2, 0.2, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.1
+        text: root.order
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.4
+        text: root.firstname
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.4
+        text: root.surname
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.2
+        text: root.user_id
+
+<ScoreSelectableLabel>:
+    orientation: "horizontal"
+    label_0: ''
+    label_3: ''
+    label_4: ''
+
+    canvas.before:
+        Color:
+            rgba: (40/255, 93/255, 191/255,0.6) if self.selected else (0.2, 0.2, 0.2, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_0
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_3
+    TextLabel:
+        font_size: 15
+        color: 1,1,1,1
+        halign: "center"
+        size_hint_x: 0.3
+        text: root.label_4
+
+<UsersRV>:
+    viewclass: 'UserSelectableLabel'
+    SelectableRecycleBoxLayout:
+        # padding: 10
+        spacing: 10
+        default_size: None, dp(30)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+
+<ScoreRV>:
+    viewclass: 'ScoreSelectableLabel'
+    SelectableRecycleBoxLayout:
+        # padding: 10
+        spacing: 10
+        default_size: None, dp(30)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+<IntroScreen>:
+    canvas.before:
+        # White background
+        Color:
+            rgb: (1, 1, 1, 1)
+        Rectangle:
+            pos:self.pos
+            size:self.size
+
+        # Blue rectangle
+        Color:
+            rgb: (33/255, 102/255, 177/255, 255/255)
+        Rectangle:
+            pos: self.pos
+            size: (self.size[0], self.size[1]*0.5)
+
+        # Blue triangle
+        Color:
+            rgb: (33/255, 102/255, 177/255, 255/255)
+        Triangle:
+            points: [0, (self.size[1]*0.5),self.size[0], (self.size[1]*0.6),self.size[0], (self.size[1]*0.5)]
+
+        # White borders
+        Color:
+            rgb: (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: ((self.size[0]*0.05), self.size[1])
+
+        Color:
+            rgb: (1, 1, 1, 1)
+        Rectangle:
+            pos: ((self.size[0]-(self.size[0]*0.05)),(self.pos[1]))
+            size: ((self.size[0]*0.05), self.size[1])
+
+        Color:
+            rgb: (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: ((self.size[0]), (self.size[1]*0.025))
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "CTU"
+            font_size: "60"
+            font_name: "Ardestine"
+            size_hint_y: None
+            height: 60
+            color: 0, 0, 0, 1
+
+        Image:
+            source: "Style/Icons/CTU_logo_blue_white.jpg"
+            size_hint_y: None
+            height: 225
+        Label:
+            size_hint_y: None
+            height: 150
+        Label:
+            text: "Determination"
+            font_size: "50"
+            font_name: "Ardestine"
+            size_hint_y: None
+            height: 50
+            color: (1, 1, 1, 1)
+        Label:
+            text: "Test"
+            font_size: "50"
+            font_name: "Ardestine"
+            size_hint_y: None
+            height: 50
+            color: (1, 1, 1, 1)
+        Label:
+            size_hint_y: None
+            height: 200
+
+
+<UserSelectionScreen>:
+    id: users_tab
+    GridLayout:
+        cols: 1
+        padding: 50
+        canvas.before:
+            Color:
+                rgba: 253, 253, 152, 1
+            Rectangle:
+                pos:self.pos
+                size:self.size
+
+        GridLayout:
+            cols: 3
+            size_hint_y: None
+            height: 40
+            Label:
+                size_hint: None, None
+                size: 40, 40
+
+            TitleLabel:
+                text: "SELECT USER"
+                font_size: 40
+                size_hint_y: None
+                height: 40
+            Button:
+                size_hint: None, None
+                size: 40, 40
+                background_normal: "Style/Icons/Add_user.png"
+                on_press: root.manager.transition.direction = "left"
+                on_press: root.manager.current = "User Creator Screen"
+
+        Label:
+            size_hint_y: None
+            height: 40
+
+        Separator:
+
+        GridLayout:
+            cols: 4
+            rows: 1
+            size_hint_y: None
+            height: 40
+            TextLabel:
+                halign: "center"
+                size_hint_x: 0.1
+                text: ''
+
+            TextLabel:
+                halign: "center"
+                size_hint_x: 0.4
+                text: 'First name'
+            TextLabel:
+                halign: "center"
+                size_hint_x: 0.4
+                text: 'Surname'
+            TextLabel:
+                halign: "center"
+                size_hint_x: 0.2
+                text: 'ID'
+
+        Separator:
+            height: 3
+        Label:
+            size_hint_y: None
+            height: 10
+
+        UsersRV:
+            id: user_list_view
+            spacing: 10
+            size_hint_y: 4
+        Label:
+            size_hint_y: None
+            height: 10
+        Separator:
+        Label:
+            size_hint_y: None
+            height: 10
+        Button:
+            id: ConfirmButton
+            text: 'CONFIRM'
+            font_size: "30"
+            font_name: "Montserrat-SemiBold"
+            size_hint_y: None
+            height: 40
+            background_normal: ''
+            background_color: 33/255, 102/255, 177/255, 255/255
+            disabled: True
+            on_release: root.manager.transition.direction = "right"
+            on_release: root.manager.current = "User Profile Screen"
+
+#            Button:
+#                background_normal: "Style/Icons/Bin.png"
+#                size_hint: (None, None)
+#                size: (100, 100)
+#                pos_hint: ({"x":0.4})
+#                on_press: root.delete_user()
+
+<UserCreator>
+    GridLayout:
+        cols: 1
+        padding: 50
+        canvas.before:
+            Color:
+                rgba: 253, 253, 152, 1
+            Rectangle:
+                pos:self.pos
+                size:self.size
+
+        GridLayout:
+            cols: 3
+            size_hint_y: None
+            height: 40
+            BackButton:
+                size_hint: None, None
+                size: 40, 40
+                on_release: root.manager.transition.direction = "right"
+                on_release: root.manager.current = "User Selection Screen"
+            TitleLabel:
+                text: "CREATE USER"
+                font_size: 40
+                size_hint_y: None
+                height: 40
+            Label:
+                size_hint: None, None
+                size: 40, 40
+        Label:
+            size_hint_y: None
+            height: 40
+
+        Separator:
+
+        Label:
+            size_hint_y: None
+            height: 40
+
+        GridLayout:
+            cols: 2
+            spacing: 20
+            size_hint_y: None
+            height: root.height*0.4
+            row_default_height: 30
+            row_force_default: True
+            TextLabel:
+                text: "First name: "
+                size_hint:(0.5, 1)
+            CustomTextInput:
+                id: first_name_input
+                multiline: False
+
+            TextLabel:
+                text: "Surname: "
+                size_hint:(0.5, 1)
+
+            CustomTextInput:
+                id: surname_input
+                multiline: False
+
+            TextLabel:
+                text: "Age: "
+                size_hint:(0.5, 1)
+
+            CustomTextInput:
+                id: age_input
+                multiline: False
+
+            TextLabel:
+                text: "Profession: "
+                size_hint:(0.5, 1)
+
+            CustomTextInput:
+                id: profession_input
+                multiline: False # TODO: Multiple professions
+
+            TextLabel:
+                text: "Nationality: "
+                size_hint:(0.5, 1)
+
+            CustomTextInput:
+                id: nationality_input
+                multiline: False
+
+        Button:
+            size_hint_y: None
+            height: 35
+            color: 1, 1, 1, 1
+            font_name: "Montserrat-SemiBold"
+            font_size: 30
+            text: "Create"
+            background_normal: ""
+            background_color: 33/255, 102/255, 177/255, 255/255
+            on_release: root.create_user()
+            on_release: root.manager.transition.direction = "right"
+            on_release: root.manager.current = "User Selection Screen"
+        Label:
+            size_hint_y: None
+            height: 10
+        Separator:
+
+        Button:
+            size_hint_y: None
+            height: 40
+            color: 0.3, 0.3, 0.3, 1
+            font_name: "Montserrat-SemiBold"
+            font_size: 20
+            id: dummy_score_button_id
+            text: "Create Dummy User"
+            background_normal: ""
+            on_release: root.create_dummy_user()
+            on_release: root.manager.transition.direction = "right"
+            on_release: root.manager.current = "User Selection Screen"
+
+        Button:
+            size_hint_y: None
+            height: 40
+            color: 0.3, 0.3, 0.3, 1
+            font_name: "Montserrat-SemiBold"
+            font_size: 20
+            text: "Create Dummy Score"
+            background_normal: ""
+            on_release: root.create_dummy_score()
+            on_release: root.manager.transition.direction = "right"
+            on_release: root.manager.current = "User Selection Screen"
+
+<ProfileTabbedPanel>:
+    do_default_tab: False
+    size_hint: 1,1
+    tab_width: None
+    background_image: ''
+    background_color: (253, 253, 152, 1)
+    border: [1, 1, 1, 1]
+    tab_pos: 'top_mid'
+    Tab:
+        id: Profile
+        text: "PROFILE"
+
+        GridLayout:
+            cols: 1
+
+            Separator:
+            Label:
+                size_hint_y: None
+                height: 40
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                padding: 50
+                height: root.height*0.6
+                TextLabel:
+                    text: "Name:"
+                    font_size: 23
+                    color: 0,0,0,1
+                    size_hint: None, None
+                    width: 150
+                    height: 30
+                TextLabel:
+                    id: Name
+                    halign: 'right'
+                    text: "Jožo Pepka"
+                    font_size: 18
+                    color: 0,0,0,1
+                    size_hint_y: None
+                    height: 30
+
+                TextLabel:
+                    text: "Age:"
+                    font_size: 23
+                    color: 0,0,0,1
+                    size_hint: None, None
+                    width: 150
+                    height: 30
+                TextLabel:
+                    id: Age
+                    halign: 'right'
+                    text: "42"
+                    font_size: 18
+                    color: 0,0,0,1
+                    size_hint_y: None
+                    height: 30
+
+                TextLabel:
+                    text: "Profession:"
+                    color: 0,0,0,1
+                    font_size: 23
+                    size_hint: None, None
+                    width: 150
+                    height: 30
+                TextLabel:
+                    id: Profession
+                    halign: 'right'
+                    text: "Student"
+                    font_size: 18
+                    color: 0,0,0,1
+                    size_hint_y: None
+                    height: 30
+
+                TextLabel:
+                    text: "Nationality:"
+                    font_size: 23
+                    color: 0,0,0,1
+                    size_hint: None, None
+                    width: 150
+                    height: 30
+
+                TextLabel:
+                    id: Nationality
+                    halign: 'right'
+                    text: "Slovakia"
+                    font_size: 18
+                    color: 0,0,0,1
+                    size_hint_y: None
+                    height: 30
+            Label:
+                size_hint_y: None
+                height: 10
+            Separator:
+            Label:
+                size_hint_y: None
+                height: 30
+            Button:
+                text: 'NEW TEST'
+                font_size: "30"
+                font_name: "Montserrat-SemiBold"
+                size_hint_y: None
+                height: 40
+                background_normal: ''
+                background_color: 33/255, 102/255, 177/255, 255/255
+                on_release: app.root.transition.direction = "right"
+                on_release: app.root.current = "Test Screen"
+
+            Label:
+                size_hint_y: None
+                height: 30
+            Separator:
+                height: 3
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: 40
+                TextLabel:
+                    font_size: "23"
+                    font_name: "Montserrat-SemiBold"
+                    text: "Delete profile:"
+
+                BoxLayout:
+                    halign: 'right'
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    DeleteButton:
+                        size_hint: None, None
+                        size: 100, 100
+                        on_press: app.root.transition.direction = "right"
+                        on_press: app.root.current = "User Selection Screen"
+                        on_release: root.delete_user()
+
+    Tab:
+        id: Records
+        text: "TEST HISTORY"
+
+        GridLayout:
+            cols: 1
+            canvas.before:
+                Color:
+                    rgba: 253, 253, 152, 1
+                Rectangle:
+                    pos:self.pos
+                    size:self.size
+            Separator:
+
+            GridLayout:
+                cols: 3
+                size_hint_y: None
+                height: 40
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'ID'
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'Test Form'
+                TextLabel:
+                    halign: "center"
+                    size_hint_x: 0.3
+                    text: 'Date'
+
+            ScoreRV:
+                id: user_records_view
+                spacing: 10
+                size_hint_y: None
+                height: root.height*0.6
+            Label:
+                size_hint_y: None
+                height: 10
+            Separator:
+            Label:
+                size_hint_y: None
+                height: 30
+            Button:
+                text: 'New Test'
+                font_size: "30"
+                font_name: "Montserrat-SemiBold"
+                size_hint_y: None
+                height: 40
+                background_normal: ''
+                background_color: 33/255, 102/255, 177/255, 255/255
+                on_release: app.root.transition.direction = "right"
+                on_release: app.root.current = "Test Screen"
+
+            Label:
+                size_hint_y: None
+                height: 30
+            Separator:
+                height: 3
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: 40
+                TextLabel:
+                    font_size: "23"
+                    font_name: "Montserrat-SemiBold"
+                    text: "Delete score:"
+
+                BoxLayout:
+                    halign: 'right'
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    DeleteButton:
+                        size_hint: None, None
+                        size: 100, 100
+                        on_release: root.delete_score()
+
+<UserProfileScreen>:
+    GridLayout:
+        cols:1
+        padding: 50
+        GridLayout:
+            cols: 3
+            size_hint_y: None
+            height: 40
+            BackButton:
+                size_hint: None, None
+                size: 40, 40
+                on_release: root.manager.transition.direction = "right"
+                on_release: root.manager.current = "User Selection Screen"
+            TitleLabel:
+                id: UserProfileTitle
+                size_hint_y: None
+                height: 40
+                text: "USER PROFILE"
+                size_hint_y: None
+                height: 50
+                font_size: 40
+            Label:
+                size_hint: None, None
+                size: 40, 40
+
+        ProfileTabbedPanel:
+            id: ProfileTabbedPanel
+
+<TestScreen>:
+    GridLayout:
+        cols: 1
+        padding: 50
+        spacing: 20
+        canvas.before:
+            Color:
+                rgba: 253, 253, 152, 1
+            Rectangle:
+                pos:self.pos
+                size:self.size
+
+        GridLayout:
+            cols: 3
+            size_hint_y: None
+            height: 40
+            BackButton:
+                size_hint: None, None
+                size: 40, 40
+                on_release: root.manager.transition.direction = "right"
+                on_release: root.manager.current = "User Profile Screen"
+            TitleLabel:
+                size_hint_y: None
+                height: 40
+                text: "TEST FORM"
+                size_hint_y: None
+                height: 50
+                font_size: 40
+            Button:
+                id: TestConfigButton
+                size_hint: None, None
+                size: (40, 40)
+                background_normal: ''
+                background_disabled_normal: ''
+                on_release: root.manager.transition.direction = "right"
+                on_release: root.manager.current = "Configuration Screen"
+                Image:
+                    source: "Style/Icons/wrench.jpg"
+                    size_hint: None, None
+                    size: (40, 40)
+                    center_x: self.parent.center_x
+                    center_y: self.parent.center_y
+        Separator:
+
+        GridLayout:
+            cols: 2
+            size_hint_y: None
+            height: 30
+            TextLabel:
+                text: "Include Instructions"
+                font_size: 15
+                size_hint_x: None
+                width: 170
+            TestFormRadioButton:
+                id: instruction_checkbox
+                size_hint_x: None
+                width: 150
+                on_active: app.include_instructions(*args)
+                # state: "down"
+        Separator:
+            height: 3
+        GridLayout:
+            cols: 2
+            spacing: 20
+            TextLabel:
+                text: "Adaptive"
+                size_hint_x: None
+                size_hint_y: None
+                width: 150
+                height: 30
+            TestFormRadioButton:
+                id: form_A_button_id
+                group: "Test Form"
+                size_hint_x: None
+                size_hint_y: None
+                width: 150
+                height: 30
+                on_active: app.select_test('test_a', *args)
+                allow_no_selection: False
+
+            TextLabel:
+                text: "Reactive"
+                size_hint_x: None
+                size_hint_y: None
+                width: 150
+                height: 30
+            TestFormRadioButton:
+                id: form_B_button_id
+                group: "Test Form"
+                size_hint_x: None
+                size_hint_y: None
+                width: 150
+                height: 30
+                on_active: app.select_test('test_b', *args)
+                allow_no_selection: False
+
+            TextLabel:
+                text: "Active"
+                size_hint_x: None
+                size_hint_y: None
+                width: 150
+                height: 30
+
+            TestFormRadioButton:
+                id: form_C_button_id
+                group: "Test Form"
+                size_hint_x: None
+                size_hint_y: None
+                width: 150
+                height: 30
+                on_active: app.select_test('test_c', *args)
+                allow_no_selection: False
+
+        Button:
+            id: StartTestButton
+            text: "START TEST"
+            font_size: 50
+            font_name: "Montserrat-SemiBold"
+            size_hint_y: None
+            height: 50
+            background_normal: ''
+            background_color: 200/255, 200/255, 200/255, 255/255
+            color: 33/255, 102/255, 177/255, 255/255
+            disabled_color: 50,50,50,1
+            disabled: True
+            on_release: app.start_test()
+
+        Separator:
+        TextLabel:
+            id: test_info
+            text: ""
+            size_hint_y: None
+            height: 200
+
+<ConfigurationScreen>
+    GridLayout:
+        cols: 1
+        padding: 50
+        spacing: 20
+        canvas.before:
+            Color:
+                rgba: 253, 253, 152, 1
+            Rectangle:
+                pos:self.pos
+                size:self.size
+        GridLayout:
+            cols: 3
+            size_hint_y: None
+            height: 40
+            BackButton:
+                size_hint: None, None
+                size: 40, 40
+                on_release: root.manager.transition.direction = "right"
+                on_release: root.manager.current = "Test Screen"
+            TitleLabel:
+                id: config_test_name
+                text: "TEST FORM"
+                font_size: 40
+                size_hint_y: None
+                height: 40
+
+            Label:
+                size_hint: None, None
+                size: 40, 40
+
+        Separator:
+
+        GridLayout:
+            cols: 1
+            Button:
+                id: test_mode_button
+                text: root.mode
+                font_size: "23"
+                font_name: "Montserrat-SemiBold"
+                size_hint_y: None
+                height: 40
+                on_release: root.test_mode_button()
+
+            Button:
+                id: panel_button
+                text: root.panel
+                font_size: "23"
+                font_name: "Montserrat-SemiBold"
+                size_hint_y: None
+                height: 40
+                on_release: root.panel_button()
+            GridLayout:
+                cols: 2
+                row_force_default: True
+                row_default_height: 40
+                size_hint_y: None
+                height: 40
+                TextLabel:
+                    text: "Panel IP:"
+                    size_hint_x: None
+                    width: 100
+                CustomTextInput:
+                    id: panel_ip
+                    disabled: True
+                    text: "147.32.168.169"
+                    font_name: "Montserrat-SemiBold"
+                    font_size: 19
+                    halign: 'center'
+            Button:
+                id: connect_panel_button
+                disabled: True
+                text: "CONNECT"
+                font_size: "23"
+                font_name: "Montserrat-SemiBold"
+                size_hint_y: None
+                height: 40
+                on_release: root.connect_panel_button()
+
+        Widget:
