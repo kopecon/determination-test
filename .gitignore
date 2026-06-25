@@ -3,3 +3,4 @@ Database/*.db
 **/__pycache__
 *.pdf
 *.png
+.idea/
