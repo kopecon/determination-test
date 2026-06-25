@@ -1,4 +1,8 @@
 import pygame
+import random
+
+# Shuffling questions doesn't feel random to the user "smart shuffle"
+random_seed = random.randint
 
 question_set = ["WHITE",
                 "high_tone",
@@ -180,7 +184,7 @@ question_set = ["WHITE",
                 "WHITE",
                 "RED",
                 "GREEN"]
-
+# random.Random(random_seed).shuffle(question_set)
 answer_set = [pygame.K_w,
               pygame.K_UP,
               pygame.K_g,
@@ -361,6 +365,7 @@ answer_set = [pygame.K_w,
               pygame.K_w,
               pygame.K_r,
               pygame.K_g]
+# random.Random(random_seed).shuffle(answer_set)
 
 training_question_set = ["RED",
                          "low_tone",

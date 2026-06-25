@@ -10,6 +10,15 @@ from Tests.test_environment import TestEnvironment
 
 # ----------------------------------------------------------------------------------------------------------  Functions:
 class TestB(TestEnvironment):
+    def __init__(self):
+        super().__init__()
+        # Test description
+        self.test_name = "REACTIVE TEST"
+        self.test_info = """Reactive form:  
+        The speed of which the stimuli are being presented is fixed.
+        """
+        self.number_of_stimuli = len(question_set.question_set)
+
     # Printing instance of this class returns the name of this class
     def __repr__(self):
         return __class__.__name__
@@ -18,7 +27,7 @@ class TestB(TestEnvironment):
     def run(self, phase="Instructions"):
         self.start_pygame()
 
-        test_form = "B"
+        test_form = "Reactive"
 
         # Test title
         title = f"DETERMINATION TEST - {test_form.upper()} FORM"
@@ -221,7 +230,7 @@ class TestB(TestEnvironment):
                     text_surface[1].move(self.text_pos[0], self.text_pos[1] + self.text.size * 6.25)
                 )
 
-                text_text_5 = f"Test duration:  {len(question_set.question_set) * stimulus_delay_time / 60000}   min"
+                text_text_5 = f"Test duration:  {self.number_of_stimuli * stimulus_delay_time / 60000}   min"
                 middle_text_text_5_surface = self.text.render(
                     text=text_text_5,
                     fgcolor=self.color_scheme['LIGHT_GRAY'],
@@ -287,7 +296,7 @@ class TestB(TestEnvironment):
                     pygame.event.clear()
 
                     # Next stimulus or finish test if ran out of stimulus
-                    if stimulus_index < len(question_set.question_set) - 1:
+                    if stimulus_index < self.number_of_stimuli - 1:
                         stimulus_index += 1
                     else:
                         self.main_window.fill(self.color_scheme['GRAY'])

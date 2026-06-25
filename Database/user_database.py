@@ -87,7 +87,8 @@ def insert_into_answer_table(question, answer, answer_type, absolute_time, relat
         c = conn.cursor()
 
         c.execute("""INSERT INTO AnswerTable(Question, Answer, AnswerType, AbsoluteTime, RelativeTime, ScoreID)
-         VALUES (?, ?, ?, ?, ?, ?)""", (question, answer, answer_type, absolute_time, relative_time, score_id))
+         VALUES (?, ?, ?, ?, ?, ?)""", (question, answer, answer_type, round(absolute_time, 3), round(relative_time, 3),
+                                        score_id))
 
         conn.commit()
         conn.close()

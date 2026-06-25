@@ -10,6 +10,8 @@ import os
 # ----------------------------------------------------------------------------------------------  Import custom modules:
 from Database import user_database
 
+# Fixme Sounds stops playing after some time in adaptive test
+
 
 # ------------------------------------------------------------------------------------------------------------  Classes:
 # Abstract class defining test environments
@@ -44,10 +46,8 @@ class TestEnvironment(ABC):
         # Current user
         self.current_user = current_user
         self.device = device
-
-        # Test parameters
-        self.test_duration = 240000 / 20  # Test duration in ms (4 min by default)
-
+        self.test_name = ""
+        self.test_info = ""  # Description of the test that is specified for each test individually
         # Style color palette
         self.color_scheme = {'GRAY': (41, 43, 45),
                              'LIGHT_GRAY': (161, 163, 165),

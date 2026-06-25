@@ -41,14 +41,6 @@
     background_normal: ""
     background_color: 0.6,0.6,0.6,0.6
 
-<TabbedPanelStrip>
-    canvas:
-        Color:
-            rgba: (0, 1, 0, 1) # green
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
 <UserSelectableLabel>:
     orientation: "horizontal"
     order: ''
@@ -143,7 +135,7 @@
         height: self.minimum_height
         orientation: 'vertical'
 
-<DeviceScreen>:
+<IntroScreen>:
     canvas.before:
         Color:
             rgb: (1, 1, 1, 1)
@@ -213,7 +205,7 @@
                 background_normal: "Style/Icons/Keyboard_custom.png"
                 on_press: root.select_input_device("KEYBOARD")
                 on_press: root.manager.transition.direction = "left"
-                on_press: root.manager.current = "Main Screen"
+                on_press: root.manager.current = "User Selection Screen"
             Button:
                 id: Control_panel_id
                 background_normal: "Style/Icons/Control_panel_custom.png"
@@ -262,10 +254,10 @@
             height: 50
             on_press: root.submit_ip_address()
             on_press: root.manager.transition.direction = "left"
-            on_press: root.manager.current = "Main Screen"
+            on_press: root.manager.current = "User Selection Screen"
         Label:
 
-<MainScreen>:
+<UserSelectionScreen>:
     do_default_tab: False
 
     TabbedPanelItem:
@@ -329,7 +321,6 @@
                     halign: "center"
                     size_hint_x: 0.2
                     text: 'ID'
-
             Separator:
                 height: 3
 
@@ -382,7 +373,7 @@
                 BackButton:
                     pos_hint: {"x":-0.1,"y":1}
                     on_release: root.manager.transition.direction = "right"
-                    on_release: root.switch_to(profile_tab_id)
+                    on_release: root.manager.current = "Intro Screen"
                 TitleLabel:
                     text: "TEST FORM"
                     size_hint_y: None
@@ -404,7 +395,7 @@
                     text: "Include Instructions"
                     font_size: 15
                     size_hint_x: None
-                    width: 150
+                    width: 170
                 TestFormRadioButton:
                     id: instruction_checkbox
                     size_hint_x: None
@@ -464,7 +455,25 @@
                     height: 30
                     on_active: app.select_test('test_c', *args)
                     allow_no_selection: False
+
+            # Button:
+            #    text: "C"
+            #    size_hint_x: None
+            #    size_hint_y: None
+            #    width: 50
+            #    height: 50
+            #    pos_hint: {'x': 0.45}
+            #    on_release: root.manager.transition.direction = "right"
+            #    on_release: root.manager.current = "Configuration Screen"
             Separator:
+
+            GridLayout:
+                cols: 1
+                spacing: 20
+
+                TextLabel:
+                    id: test_info
+                    text: ""
 
 <UserRecordsScreen>
     do_default_tab: False
@@ -493,7 +502,7 @@
                 BackButton:
                     pos_hint: {"x":-0.1,"y":1}
                     on_release: root.manager.transition.direction = "right"
-                    on_release: root.manager.current = "Main Screen"
+                    on_release: root.manager.current = "User Selection Screen"
                 TitleLabel:
                     id: test_score_title_id
                     text: "TEST SCORE"
@@ -559,7 +568,7 @@
                 BackButton:
                     pos_hint: {"x":-0.1,"y":1}
                     on_release: root.manager.transition.direction = "right"
-                    on_release: root.manager.current = "Main Screen"
+                    on_release: root.manager.current = "User Selection Screen"
                 TitleLabel:
                     text: "CREATE USER"
                     size_hint_y: None
@@ -626,7 +635,7 @@
                     background_normal: ""
                     on_press: root.create_user()
                     on_press: root.manager.transition.direction = "right"
-                    on_press: root.manager.current = "Main Screen"
+                    on_press: root.manager.current = "User Selection Screen"
                 Label:
 
                 Separator:
@@ -641,7 +650,7 @@
                     background_normal: ""
                     on_press: root.create_dummy_user()
                     on_press: root.manager.transition.direction = "right"
-                    on_press: root.manager.current = "Main Screen"
+                    on_press: root.manager.current = "User Selection Screen"
 
                 Button:
                     color: 0.3, 0.3, 0.3, 1
@@ -652,4 +661,36 @@
                     background_normal: ""
                     on_press: root.create_dummy_score()
                     on_press: root.manager.transition.direction = "right"
-                    on_press: root.manager.current = "Main Screen"
+                    on_press: root.manager.current = "User Selection Screen"
+
+<ConfigurationScreen>
+    BoxLayout
+        orientation: "vertical"
+        padding: 50
+        spacing: 20
+        canvas.before:
+            Color:
+                rgba: 253, 253, 152, 1
+            Rectangle:
+                pos:self.pos
+                size:self.size
+        FloatLayout:
+            size_hint_y: None
+            height: 30
+            BackButton:
+                pos_hint: {"x":-0.1,"y":1}
+                on_release: root.manager.transition.direction = "right"
+                on_release: root.manager.current = "User Selection Screen"
+            TitleLabel:
+                id: config_test_name
+                text: "TEST FORM"
+                size_hint_y: None
+                height: 50
+                font_size: 40
+                pos_hint: {"x":0,"y":0.5}
+        BoxLayout:
+            Button:
+                id: test_mode_button
+                text: root.mode
+                on_press: root.test_mode_button()
+        Widget:
