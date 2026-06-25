@@ -1,9 +1,11 @@
 # Determination Test
 
-Implementation of a **psychodiagnostic determination test** designed to evaluate a user's **reactive stress tolerance**.  
+Implementation of a **psychodiagnostic determination test** designed to evaluate a user's
+**reactive stress tolerance**.  
 The application is intended to mimic the functionality and behavior of the **SCHUHFRIED Determination Test (DT)**.
 
-Developed as a part of bachelor thesis at the **Czech Technical University in Prague – Faculty of Mechanical Engineering**.
+Developed as a part of bachelor thesis at the
+**Czech Technical University in Prague – Faculty of Mechanical Engineering**.
 
 ---
 
@@ -27,6 +29,41 @@ The software is combined with a custom-made hardware in the for of a control pan
 RaspberryPI and consists of arcade buttons and pedals.
 
 ---
+
+## Work Preview
+
+### Menu
+
+#### Before eye-tracking optimization
+
+![Old design](Assets/old_design.PNG)
+
+#### After eye-tracking optimization
+
+![New design](Assets/new_design.PNG)
+
+### Test
+
+![Determination Test Demo](Assets/DTGIFF.gif)
+
+### Control Panel Prototype
+
+![Panel - Model](Assets/panel_model.png)
+![Panel - Front](Assets/panel_front.png)
+![Panel - Back](Assets/panel_back.png)
+
+### GPIO circuit
+
+#### Pulldown Resistor Circuit
+
+- To address "floating" pins.
+- **Hardware:** Built using a breadboard and manually soldered connections.
+
+![Input Circuit](Assets/input_circuit_push_down.png)
+
+### 3D Printed Circuit Guard
+
+![Circuit Guard](Assets/circuit_guard.png)
 
 ## Features
 
@@ -76,7 +113,8 @@ without proper validation.
 > This application has been developed specifically for Windows. Other operating systems (macOS, Linux) are not
 > officially supported.
 
-1) Clone this repository: git clone [https://github.com/kopecon/determination-test.git](https://github.com/kopecon/determination-test.git)
+1) Clone this repository: git
+   clone [https://github.com/kopecon/determination-test.git](https://github.com/kopecon/determination-test.git)
 2) Set your python interpreter (Python 3.9.13)
 3) Open terminal and navigate to the directory containing the "pyproject.toml".
 4) In the terminal run: pip install . (or for developer mode: pip install -e . )
