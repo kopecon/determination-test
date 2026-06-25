@@ -10,23 +10,23 @@ import os
 # ----------------------------------------------------------------------------------------------  Import custom modules:
 from Database import user_database
 
+
 # Fixme Sounds stops playing after some time in adaptive test
 
 
 # ------------------------------------------------------------------------------------------------------------  Classes:
 # Abstract class defining test environments
 class TestEnvironment(ABC):
-
     # Display parameters
     FPS_ceiling = 2000  # Frame rate celling
-    
+
     stimulus_parameters = {'circle_size': 100, 'pedal_width': 150, 'pedal_height': 250, 'volume': 0.2}
-    
+
     # Switch debounce time [s] - countermeasure to left pedal "Switch Bounce"
     debounce_time = 0.2  # Empirically measured time... could be around 190 ms
 
     # Directory to search for dependencies
-    project_dir = os.path.join(os.getcwd(), os.pardir)
+    project_dir = os.getcwd()
     tests_style_dir = f'{project_dir}/Tests/Style'
 
     # Pygame environment properties
