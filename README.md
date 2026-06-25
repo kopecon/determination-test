@@ -1,11 +1,9 @@
 # Determination Test
 
-Implementation of a **psychodiagnostic determination test** designed to evaluate a user's **reactive stress tolerance
-**.  
+Implementation of a **psychodiagnostic determination test** designed to evaluate a user's **reactive stress tolerance**.  
 The application is intended to mimic the functionality and behavior of the **SCHUHFRIED Determination Test (DT)**.
 
-Developed as a part of bachelor thesis at the **Czech Technical University in Prague – Faculty of Mechanical Engineering
-**.
+Developed as a part of bachelor thesis at the **Czech Technical University in Prague – Faculty of Mechanical Engineering**.
 
 ---
 
