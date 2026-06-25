@@ -9,7 +9,7 @@ database_name = "user_database.db"  # Choose your Database file to store user's 
 # Create a function to connect to User Database
 def connect_to_user_db():
     # Specify the location where to save the .db file
-    project_dir = os.path.join(os.getcwd(), os.pardir)  # Get the parent of the current directory
+    project_dir = os.getcwd()  # Get the parent of the current directory
     database_dir = f'{project_dir}/Database/'  # Path to the database directory
 
     # Connect or create connection to User Database

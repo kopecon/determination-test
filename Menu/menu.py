@@ -59,14 +59,14 @@ def _screen_ids(screen_name: str):
 
 # -----------------------------------------------------------------------------------  Load a layout style form .kv file
 LabelBase.register(name='Ardestine',
-                   fn_regular='Style/Fonts/Ardestine.ttf')
+                   fn_regular='Menu/Style/Fonts/Ardestine.ttf')
 LabelBase.register(name='D-DINCondensed',
-                   fn_regular='Style/Fonts/D-DINCondensed-Bold.ttf')
+                   fn_regular='Menu/Style/Fonts/D-DINCondensed-Bold.ttf')
 LabelBase.register(name='Montserrat-SemiBold',
-                   fn_regular='Style/Fonts/Montserrat-SemiBold.ttf')
+                   fn_regular='Menu/Style/Fonts/Montserrat-SemiBold.ttf')
 
 # Builder.load_file("Style/menu_layout.kv")
-Builder.load_file("Style/new_menu_layout.kv")
+Builder.load_file("Menu/Style/new_menu_layout.kv")
 
 
 # -------------------------------------------------------------------------------------------------------------  Classes
